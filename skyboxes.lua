@@ -60,12 +60,6 @@ task.spawn(function()
     end
 end)
 
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Minecraft", getgenv().Minecraft.Enabled, function(value)
-    getgenv().Minecraft.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
 getgenv().Purple = {
     Enabled = false -- Ustaw na true, jeśli chcesz włączyć
 }
@@ -127,12 +121,6 @@ task.spawn(function()
             changeSkybox()
         end
     end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Purple", getgenv().Purple.Enabled, function(value)
-    getgenv().Purple.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
 end)
 
 getgenv().DarkBlue = {
@@ -198,12 +186,6 @@ task.spawn(function()
     end
 end)
 
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Dark Blue", getgenv().DarkBlue.Enabled, function(value)
-    getgenv().DarkBlue.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
 getgenv().DarkGreen = {
     Enabled = false -- Ustaw na true, jeśli chcesz włączyć
 }
@@ -265,12 +247,6 @@ task.spawn(function()
             changeSkybox()
         end
     end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Dark Green", getgenv().DarkGreen.Enabled, function(value)
-    getgenv().DarkGreen.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
 end)
 
 getgenv().Red = {
@@ -336,12 +312,6 @@ task.spawn(function()
     end
 end)
 
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Red", getgenv().Red.Enabled, function(value)
-    getgenv().Red.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
 getgenv().Pink = {
     Enabled = false -- Ustaw na true, jeśli chcesz włączyć
 }
@@ -403,12 +373,6 @@ task.spawn(function()
             changeSkybox()
         end
     end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Pink", getgenv().Pink.Enabled, function(value)
-    getgenv().Pink.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
 end)
 
 getgenv().Yellow = {
@@ -474,12 +438,6 @@ task.spawn(function()
     end
 end)
 
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Yellow", getgenv().Yellow.Enabled, function(value)
-    getgenv().Yellow.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
 getgenv().Orange = {
     Enabled = false -- Ustaw na true, jeśli chcesz włączyć
 }
@@ -541,12 +499,6 @@ task.spawn(function()
             changeSkybox()
         end
     end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Orange", getgenv().Orange.Enabled, function(value)
-    getgenv().Orange.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
 end)
 
 getgenv().Green = {
