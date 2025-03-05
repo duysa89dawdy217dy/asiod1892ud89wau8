@@ -1254,7 +1254,7 @@ end
 
 task.spawn(MonitorClockTime)
 
-WorldSection:AddToggle("Time Changer", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
+WorldSection:AddToggle("Enable Camlock", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if value then
         config.PreviousValue = Lighting.ClockTime -- Zapisuje poprzedni czas tylko raz, gdy Enabled przechodzi na true
@@ -1268,18 +1268,26 @@ WorldSection:AddTextbox("Time", getgenv().Configurations.Visuals.World.ClockTime
     getgenv().Configurations.Visuals.World.ClockTime.Value = tonumber(value) or 12
 end)
 
-getgenv().Minecraft = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
+-- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
+if not getgenv().SkyboxSettings then
+    getgenv().SkyboxSettings = {}
+end
 
--- Konfiguracja skyboxa
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://1876545003",
-    SkyboxDn = "rbxassetid://1876544331",
-    SkyboxFt = "rbxassetid://1876542941",
-    SkyboxLf = "rbxassetid://1876543392",
-    SkyboxRt = "rbxassetid://1876543764",
-    SkyboxUp = "rbxassetid://1876544642"
+-- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
+if not getgenv().SkyboxSettings then
+    getgenv().SkyboxSettings = {}
+end
+
+getgenv().SkyboxSettings = {
+    Minecraft = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://1876545003", SkyboxDn = "rbxassetid://1876544331", SkyboxFt = "rbxassetid://1876542941", SkyboxLf = "rbxassetid://1876543392", SkyboxRt = "rbxassetid://1876543764", SkyboxUp = "rbxassetid://1876544642"}},
+    Purple = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"}},
+    DarkBlue = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://393845394", SkyboxDn = "rbxassetid://393845204", SkyboxFt = "rbxassetid://393845629", SkyboxLf = "rbxassetid://393845750", SkyboxRt = "rbxassetid://393845533", SkyboxUp = "rbxassetid://393845287"}},
+    Red = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://15832429892", SkyboxDn = "rbxassetid://15832430998", SkyboxFt = "rbxassetid://15832430210", SkyboxLf = "rbxassetid://15832430671", SkyboxRt = "rbxassetid://15832431198", SkyboxUp = "rbxassetid://15832429401"}},
+    Pink = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://12635309703", SkyboxDn = "rbxassetid://12635311686", SkyboxFt = "rbxassetid://12635312870", SkyboxLf = "rbxassetid://12635313718", SkyboxRt = "rbxassetid://12635315817", SkyboxUp = "rbxassetid://12635316856"}},
+    DarkGreen = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://566611187", SkyboxDn = "rbxassetid://566613198", SkyboxFt = "rbxassetid://566611142", SkyboxLf = "rbxassetid://566611266", SkyboxRt = "rbxassetid://566611300", SkyboxUp = "rbxassetid://566611218"}},
+    Green = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://11941775243", SkyboxDn = "rbxassetid://11941774975", SkyboxFt = "rbxassetid://11941774655", SkyboxLf = "rbxassetid://11941774369", SkyboxRt = "rbxassetid://11941774042", SkyboxUp = "rbxassetid://11941773718"}},
+    Yellow = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"}},
+    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
 }
 
 -- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
@@ -1301,590 +1309,99 @@ local function changeSkybox()
         end
     end
 
-    if getgenv().Minecraft.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
+    for skybox, settings in pairs(getgenv().SkyboxSettings) do
+        if settings.Enabled then
+            local newSky = Instance.new("Sky")
+            newSky.Name = "CustomSkybox"
+            newSky.SkyboxBk = settings.Assets.SkyboxBk
+            newSky.SkyboxDn = settings.Assets.SkyboxDn
+            newSky.SkyboxFt = settings.Assets.SkyboxFt
+            newSky.SkyboxLf = settings.Assets.SkyboxLf
+            newSky.SkyboxRt = settings.Assets.SkyboxRt
+            newSky.SkyboxUp = settings.Assets.SkyboxUp
+            newSky.Parent = lighting
+            break
+        end
     end
 end
 
 -- Monitorowanie zmian w Enabled i aktualizacja skyboxa
 task.spawn(function()
-    local lastState = getgenv().Minecraft.Enabled
+    local lastState = {}
+    for skybox, settings in pairs(getgenv().SkyboxSettings) do
+        lastState[skybox] = settings.Enabled
+    end
+
     while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Minecraft.Enabled ~= lastState then
-            lastState = getgenv().Minecraft.Enabled
-            changeSkybox()
+        for skybox, settings in pairs(getgenv().SkyboxSettings) do
+            if settings.Enabled ~= lastState[skybox] then
+                lastState[skybox] = settings.Enabled
+                changeSkybox()
+            end
         end
     end
 end)
 
 -- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Minecraft", getgenv().Minecraft.Enabled, function(value)
-    getgenv().Minecraft.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
+for skybox, settings in pairs(getgenv().SkyboxSettings) do
+    SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
+        settings.Enabled = value -- Poprawiona nazwa zmiennej
+        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
+    end)
+end
 
-getgenv().Purple = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
+getgenv().Zoom = {
+    Enabled = false -- Set this to true or false to enable/disable the zoom
 }
 
--- Konfiguracja skyboxa
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
 
-local skyboxAssets = {
-    SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"  -- Replace with your SkyboxUp asset ID
-}
+local defaultMaxZoom = 100
+local currentMaxZoom = defaultMaxZoom  -- Store the initial max zoom
 
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
+-- Initially set the camera's max zoom distance to the default value
+player.CameraMaxZoomDistance = defaultMaxZoom
+
+local isEnabled = getgenv().Zoom.Enabled
+
+local function onMouseWheel(input, gameProcessed)
+    if not isEnabled or gameProcessed then return end
+    
+    if input.UserInputType == Enum.UserInputType.MouseWheel then
+        local currentZoom = (camera.CFrame.Position - camera.Focus.Position).Magnitude
+        
+        if input.Position.Z < 0 then
+            if currentZoom >= currentMaxZoom * 0.9 then
+                currentMaxZoom = currentMaxZoom * 1.5
+                player.CameraMaxZoomDistance = currentMaxZoom
+            end
+        end
     end
 end
 
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
+-- Function to toggle the zoom functionality on or off
+local function toggleZoom(state)
+    getgenv().Zoom.Enabled = state
+    isEnabled = state
 
-    if getgenv().Purple.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
+    if not isEnabled then
+        -- When disabled, set CameraMaxZoomDistance back to the default value
+        player.CameraMaxZoomDistance = defaultMaxZoom
     end
 end
 
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Purple.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Purple.Enabled ~= lastState then
-            lastState = getgenv().Purple.Enabled
-            changeSkybox()
-        end
-    end
-end)
+UserInputService.InputChanged:Connect(onMouseWheel)
 
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Purple", getgenv().Purple.Enabled, function(value)
-    getgenv().Purple.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
+-- Example usage: toggle zoom on or off
+-- toggleZoom(true) -- Enable
+-- toggleZoom(false) -- Disable and reset to default zoom
 
-getgenv().DarkBlue = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://393845394", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "rbxassetid://393845204", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "rbxassetid://393845629", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "rbxassetid://393845750", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "rbxassetid://393845533", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "rbxassetid://393845287"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().DarkBlue.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().DarkBlue.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().DarkBlue.Enabled ~= lastState then
-            lastState = getgenv().DarkBlue.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Dark Blue", getgenv().DarkBlue.Enabled, function(value)
-    getgenv().DarkBlue.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().DarkGreen = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://566611187", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "rbxassetid://566613198", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "rbxassetid://566611142", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "rbxassetid://566611266", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "rbxassetid://566611300", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "rbxassetid://566611218"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().DarkGreen.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().DarkGreen.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().DarkGreen.Enabled ~= lastState then
-            lastState = getgenv().DarkGreen.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Dark Green", getgenv().DarkGreen.Enabled, function(value)
-    getgenv().DarkGreen.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().Red = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://15832429892", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "rbxassetid://15832430998", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "rbxassetid://15832430210", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "rbxassetid://15832430671", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "rbxassetid://15832431198", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "rbxassetid://15832429401"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().Red.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Red.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Red.Enabled ~= lastState then
-            lastState = getgenv().Red.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Red", getgenv().Red.Enabled, function(value)
-    getgenv().Red.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().Pink = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://12635309703", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "rbxassetid://12635311686", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "rbxassetid://12635312870", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "rbxassetid://12635313718", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "rbxassetid://12635315817", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "rbxassetid://12635316856"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().Pink.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Pink.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Pink.Enabled ~= lastState then
-            lastState = getgenv().Pink.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Pink", getgenv().Pink.Enabled, function(value)
-    getgenv().Pink.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().Yellow = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().Yellow.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Yellow.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Yellow.Enabled ~= lastState then
-            lastState = getgenv().Yellow.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Yellow", getgenv().Yellow.Enabled, function(value)
-    getgenv().Yellow.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().Orange = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "http://www.roblox.com/asset/?id=150939022", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "http://www.roblox.com/asset/?id=150939038", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "http://www.roblox.com/asset/?id=150939047", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "http://www.roblox.com/asset/?id=150939056", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "http://www.roblox.com/asset/?id=150939063", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "http://www.roblox.com/asset/?id=150939082"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().Orange.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Orange.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Orange.Enabled ~= lastState then
-            lastState = getgenv().Orange.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
--- GUI - Przycisk do zmiany skyboxa
-SkyboxesSection:AddToggle("Orange", getgenv().Orange.Enabled, function(value)
-    getgenv().Orange.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
-end)
-
-getgenv().Green = {
-    Enabled = false -- Ustaw na true, jeśli chcesz włączyć
-}
-
--- Konfiguracja skyboxa
-
-local skyboxAssets = {
-    SkyboxBk = "rbxassetid://11941775243", -- Replace with your SkyboxBk asset ID
-    SkyboxDn = "rbxassetid://11941774975", -- Replace with your SkyboxDn asset ID
-    SkyboxFt = "rbxassetid://11941774655", -- Replace with your SkyboxFt asset ID
-    SkyboxLf = "rbxassetid://11941774369", -- Replace with your SkyboxLf asset ID
-    SkyboxRt = "rbxassetid://11941774042", -- Replace with your SkyboxRt asset ID
-    SkyboxUp = "rbxassetid://11941773718"  -- Replace with your SkyboxUp asset ID
-}
-
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
-local lighting = game:GetService("Lighting")
-local originalSkybox = nil
-for _, child in pairs(lighting:GetChildren()) do
-    if child:IsA("Sky") then
-        originalSkybox = child:Clone()
-        break
-    end
-end
-
--- Funkcja do zmiany skyboxa
-local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
-    if getgenv().Green.Enabled then
-        -- Tworzenie nowego skyboxa
-        local newSky = Instance.new("Sky")
-        newSky.Name = "CustomSkybox"
-        newSky.SkyboxBk = skyboxAssets.SkyboxBk
-        newSky.SkyboxDn = skyboxAssets.SkyboxDn
-        newSky.SkyboxFt = skyboxAssets.SkyboxFt
-        newSky.SkyboxLf = skyboxAssets.SkyboxLf
-        newSky.SkyboxRt = skyboxAssets.SkyboxRt
-        newSky.SkyboxUp = skyboxAssets.SkyboxUp
-        newSky.Parent = lighting
-    elseif originalSkybox then
-        -- Przywróć oryginalny skybox po wyłączeniu
-        local restoredSkybox = originalSkybox:Clone()
-        restoredSkybox.Parent = lighting
-    end
-end
-
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = getgenv().Green.Enabled
-    while task.wait(1) do -- Sprawdza co sekundę
-        if getgenv().Green.Enabled ~= lastState then
-            lastState = getgenv().Green.Enabled
-            changeSkybox()
-        end
-    end
-end)
-
-SkyboxesSection:AddToggle("Green", getgenv().Green.Enabled, function(value)
-    getgenv().Green.Enabled = value -- Poprawiona nazwa zmiennej
-    changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
+-- Update the toggle in the GUI and ensure it's reflected properly
+PlayerSection:AddToggle("Infinite Zoom", getgenv().Zoom.Enabled, function(value)
+    toggleZoom(value) -- Call toggleZoom function to change the zoom state
 end)
 
 -- GUI ustawienia aimbota
