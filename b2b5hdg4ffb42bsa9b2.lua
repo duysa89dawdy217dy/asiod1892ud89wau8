@@ -12,18 +12,18 @@ getgenv().FakeMacro = true
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/zvxvaz/PiterNaGitHub/refs/heads/main/gui.lua"))()
 local Window = Library:CreateWindow("swindle.cc (beta)", Vector2.new(492, 598), Enum.KeyCode.RightControl)
 local AimingTab = Window:CreateTab("Aimbot")
-local MovementTab = Window:CreateTab("Movement")
+local MovementTab = Window:CreateTab("Movement")  -- Nowa zakładka "Movement"
 local Visuals = Window:CreateTab("Visuals")
 local Misc = Window:CreateTab("Misc")
 
 
-local AimbotSection = AimingTab:CreateSector("Camlock", "left")
-local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")
+local AimbotSection = AimingTab:CreateSector("Camlock", "left")  -- Sekcja w "Movement"
+local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")  -- Sekcja Silent Aim
 local TargetStrafeSection = AimingTab:CreateSector("TargetStrafe", "right")
 local FlightSection = MovementTab:CreateSector("Flight", "right")
 local CFrameSection = MovementTab:CreateSector("CFrame", "Left")
 local MacroSection = MovementTab:CreateSector("Macro", "Left")
-local AntilockSection = AimingTab:CreateSector("Antilock", "left")
+local AntilockSection = AimingTab:CreateSector("Antilock", "left")  -- Sekcja Silent Aim
 local VisualsSection = Visuals:CreateSector("ESP", "Left")
 local TexturesSection = Visuals:CreateSector("Texture Changer", "Right")
 local TrailSection = Visuals:CreateSector("Self Visuals", "left")
@@ -43,11 +43,14 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+
+-- Variables
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 local targetPlayer = nil
 
+-- Ustawienia aimbota
 getgenv().Aimbot = {
     Enabled = false,
     Keybind = "C",
@@ -1256,7 +1259,7 @@ end
 
 task.spawn(MonitorClockTime)
 
-WorldSection:AddToggle("Time Changer", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
+WorldSection:AddToggle("Enable Camlock", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if value then
         config.PreviousValue = Lighting.ClockTime -- Zapisuje poprzedni czas tylko raz, gdy Enabled przechodzi na true
@@ -1817,6 +1820,52 @@ local Camera = game.Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 local SilentAimTarget = nil
 local HighlightObject = nil
+
+getgenv().rapidfire = false
+
+local player = game.Players.LocalPlayer
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local isActive = false  
+
+local function continuouslyActivateHeldItem()
+    while true do  
+        if getgenv().rapidfire and isActive then
+            local character = player.Character or player.CharacterAdded:Wait()
+            local gunTool = character:FindFirstChildOfClass("Tool")
+
+            if gunTool then
+                gunTool:Activate()
+            end
+        end
+        task.wait(0.01) -- Mniejsze obciążenie niż `wait(0.0001)`
+    end
+end
+
+local function onMouseClick(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        isActive = true
+    end
+end
+
+local function onMouseRelease(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        isActive = false
+    end
+end
+
+userInputService.InputBegan:Connect(onMouseClick)
+userInputService.InputEnded:Connect(onMouseRelease)
+
+spawn(continuouslyActivateHeldItem)
+
+PlayerSection:AddToggle("Faster shooting", getgenv().rapidfire, function(value)
+    getgenv().rapidfire = value
+end)
 
 getgenv().Headless = getgenv().Headless or false
 getgenv().Korblox = getgenv().Korblox or false
