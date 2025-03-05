@@ -1,4 +1,4 @@
-local enabled = false -- Ustaw na true, jeśli chcesz włączyć skrypt
+local enabled = true
 
 if not enabled then return end
 
@@ -12,18 +12,18 @@ getgenv().FakeMacro = true
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/zvxvaz/PiterNaGitHub/refs/heads/main/gui.lua"))()
 local Window = Library:CreateWindow("swindle.cc (beta)", Vector2.new(492, 598), Enum.KeyCode.RightControl)
 local AimingTab = Window:CreateTab("Aimbot")
-local MovementTab = Window:CreateTab("Movement")  -- Nowa zakładka "Movement"
+local MovementTab = Window:CreateTab("Movement")
 local Visuals = Window:CreateTab("Visuals")
 local Misc = Window:CreateTab("Misc")
 
 
-local AimbotSection = AimingTab:CreateSector("Camlock", "left")  -- Sekcja w "Movement"
-local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")  -- Sekcja Silent Aim
+local AimbotSection = AimingTab:CreateSector("Camlock", "left")
+local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")
 local TargetStrafeSection = AimingTab:CreateSector("TargetStrafe", "right")
 local FlightSection = MovementTab:CreateSector("Flight", "right")
 local CFrameSection = MovementTab:CreateSector("CFrame", "Left")
 local MacroSection = MovementTab:CreateSector("Macro", "Left")
-local AntilockSection = AimingTab:CreateSector("Antilock", "left")  -- Sekcja Silent Aim
+local AntilockSection = AimingTab:CreateSector("Antilock", "left")
 local VisualsSection = Visuals:CreateSector("ESP", "Left")
 local TexturesSection = Visuals:CreateSector("Texture Changer", "Right")
 local TrailSection = Visuals:CreateSector("Self Visuals", "left")
@@ -43,13 +43,11 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
--- Variables
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 local targetPlayer = nil
 
--- Ustawienia aimbota
 getgenv().Aimbot = {
     Enabled = false,
     Keybind = "C",
