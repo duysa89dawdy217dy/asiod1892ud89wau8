@@ -1,4 +1,4 @@
-local enabled = true -- Ustaw na true, jeśli chcesz włączyć skrypt
+local enabled = false -- Ustaw na true, jeśli chcesz włączyć skrypt
 
 if not enabled then return end
 
