@@ -1254,7 +1254,7 @@ end
 
 task.spawn(MonitorClockTime)
 
-WorldSection:AddToggle("Enable Camlock", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
+WorldSection:AddToggle("Time Changer", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if value then
         config.PreviousValue = Lighting.ClockTime -- Zapisuje poprzedni czas tylko raz, gdy Enabled przechodzi na true
