@@ -1317,11 +1317,7 @@ if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
 
--- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
-if not getgenv().SkyboxSettings then
-    getgenv().SkyboxSettings = {}
-end
-
+-- Definicja dostępnych skyboxów
 getgenv().SkyboxSettings = {
     Minecraft = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://1876545003", SkyboxDn = "rbxassetid://1876544331", SkyboxFt = "rbxassetid://1876542941", SkyboxLf = "rbxassetid://1876543392", SkyboxRt = "rbxassetid://1876543764", SkyboxUp = "rbxassetid://1876544642"}},
     Purple = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"}},
@@ -1331,10 +1327,10 @@ getgenv().SkyboxSettings = {
     DarkGreen = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://566611187", SkyboxDn = "rbxassetid://566613198", SkyboxFt = "rbxassetid://566611142", SkyboxLf = "rbxassetid://566611266", SkyboxRt = "rbxassetid://566611300", SkyboxUp = "rbxassetid://566611218"}},
     Green = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://11941775243", SkyboxDn = "rbxassetid://11941774975", SkyboxFt = "rbxassetid://11941774655", SkyboxLf = "rbxassetid://11941774369", SkyboxRt = "rbxassetid://11941774042", SkyboxUp = "rbxassetid://11941773718"}},
     Yellow = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"}},
-    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
+    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}}
 }
 
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
+-- Pobranie Lighting i zapisanie oryginalnego skyboxa
 local lighting = game:GetService("Lighting")
 local originalSkybox = nil
 for _, child in pairs(lighting:GetChildren()) do
@@ -1346,15 +1342,20 @@ end
 
 -- Funkcja do zmiany skyboxa
 local function changeSkybox()
-    -- Usuń obecny skybox
-    for _, child in pairs(lighting:GetChildren()) do
-        if child:IsA("Sky") then
-            child:Destroy()
-        end
-    end
-
+    local foundEnabled = false
+    
     for skybox, settings in pairs(getgenv().SkyboxSettings) do
         if settings.Enabled then
+            foundEnabled = true
+
+            -- Usunięcie obecnego skyboxa
+            for _, child in pairs(lighting:GetChildren()) do
+                if child:IsA("Sky") then
+                    child:Destroy()
+                end
+            end
+
+            -- Tworzenie nowego skyboxa
             local newSky = Instance.new("Sky")
             newSky.Name = "CustomSkybox"
             newSky.SkyboxBk = settings.Assets.SkyboxBk
@@ -1364,33 +1365,34 @@ local function changeSkybox()
             newSky.SkyboxRt = settings.Assets.SkyboxRt
             newSky.SkyboxUp = settings.Assets.SkyboxUp
             newSky.Parent = lighting
-            break
+
+            break -- Wybieramy pierwszy aktywowany skybox
         end
     end
-end
 
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = {}
-    for skybox, settings in pairs(getgenv().SkyboxSettings) do
-        lastState[skybox] = settings.Enabled
-    end
-
-    while task.wait(1) do -- Sprawdza co sekundę
-        for skybox, settings in pairs(getgenv().SkyboxSettings) do
-            if settings.Enabled ~= lastState[skybox] then
-                lastState[skybox] = settings.Enabled
-                changeSkybox()
+    -- Przywrócenie oryginalnego skyboxa, jeśli żaden nie jest aktywny
+    if not foundEnabled and originalSkybox then
+        for _, child in pairs(lighting:GetChildren()) do
+            if child:IsA("Sky") then
+                child:Destroy()
             end
         end
+        originalSkybox:Clone().Parent = lighting
     end
-end)
+end
 
 -- GUI - Przycisk do zmiany skyboxa
 for skybox, settings in pairs(getgenv().SkyboxSettings) do
     SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
-        settings.Enabled = value -- Poprawiona nazwa zmiennej
-        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
+        -- Wyłącz wszystkie inne skyboxy, jeśli użytkownik włącza nowy
+        for otherSkybox, otherSettings in pairs(getgenv().SkyboxSettings) do
+            if otherSkybox ~= skybox then
+                otherSettings.Enabled = false
+            end
+        end
+        
+        settings.Enabled = value
+        changeSkybox()
     end)
 end
 
@@ -1672,10 +1674,8 @@ end)
 
 getgenv().Visuals = {
     ForceFieldEnabled = false,
-    ForceFieldGunEnabled = false,
     TrailEnabled = false,
     ForceFieldColor = Color3.fromRGB(255, 255, 255),
-    ForceFieldGunColor = Color3.fromRGB(255, 255, 255),
     TrailColor = Color3.fromRGB(255, 255, 255),
     TrailLifetime = 1.5,
     TrailWidth = 0.6,
@@ -1703,30 +1703,6 @@ local function updateForceField()
                         if getgenv().Visuals.OriginalColors[part] then
                             part.Color = getgenv().Visuals.OriginalColors[part]
                         end
-                    end
-                end
-            end
-        end
-    end
-end
-
-local function updateForceFieldGun()
-    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            local handle = tool:FindFirstChild("Handle")
-            if handle and handle:IsA("BasePart") then
-                if getgenv().Visuals.ForceFieldGunEnabled then
-                    -- Zapisz oryginalny kolor przed zmianą
-                    if not getgenv().Visuals.OriginalColors[handle] then
-                        getgenv().Visuals.OriginalColors[handle] = handle.Color
-                    end
-                    handle.Material = Enum.Material.ForceField
-                    handle.Color = getgenv().Visuals.ForceFieldGunColor
-                else
-                    handle.Material = Enum.Material.Plastic
-                    -- Przywróć oryginalny kolor
-                    if getgenv().Visuals.OriginalColors[handle] then
-                        handle.Color = getgenv().Visuals.OriginalColors[handle]
                     end
                 end
             end
@@ -1780,7 +1756,6 @@ end)
 
 RunService.Heartbeat:Connect(function()
     updateForceField()
-    updateForceFieldGun()
     updateTrail()
 end)
 
@@ -1788,16 +1763,8 @@ TrailSection:AddToggle("Enable ForceField", getgenv().Visuals.ForceFieldEnabled,
     getgenv().Visuals.ForceFieldEnabled = value
 end)
 
-TrailSection:AddToggle("Enable ForceField Gun", getgenv().Visuals.ForceFieldGunEnabled, function(value)
-    getgenv().Visuals.ForceFieldGunEnabled = value
-end)
-
 TrailSection:AddColorpicker("ForceField Color", getgenv().Visuals.ForceFieldColor, function(color)
     getgenv().Visuals.ForceFieldColor = color
-end)
-
-TrailSection:AddColorpicker("ForceField Gun Color", getgenv().Visuals.ForceFieldGunColor, function(color)
-    getgenv().Visuals.ForceFieldGunColor = color
 end)
 
 TrailSection:AddToggle("Enable Trail", getgenv().Visuals.TrailEnabled, function(value)
@@ -2484,24 +2451,6 @@ Highlight.Enabled = false
 Highlight.FillColor = Color3.fromRGB(255, 255, 255)
 Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 
-getgenv().ForceHit = {
-    Enabled = false,       -- Włącz/Wyłącz
-    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
-    Tracer = false,        -- Włącz/Wyłącz Tracer
-    Notifications = false, -- Włącz/Wyłącz Powiadomienia
-    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
-}
-
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local Target = nil
-local Tracer = Drawing.new("Line")
-local Highlight = Instance.new("Highlight")
-Highlight.Parent = game.CoreGui
-Highlight.Enabled = false
-Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-
 -- 📌 Ustawienia Tracera
 Tracer.Thickness = 2
 Tracer.Color = Color3.fromRGB(255, 255, 255)
@@ -2529,14 +2478,16 @@ function GetClosestToMouse()
     local ClosestDistance = math.huge
 
     for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            local Head = player.Character.Head
-            local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
-            if OnScreen then
-                local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
-                if Distance < ClosestDistance then
-                    ClosestDistance = Distance
-                    ClosestPlayer = player
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local Head = player.Character:FindFirstChild("Head")
+            if Head then
+                local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+                if OnScreen then
+                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
+                    if Distance < ClosestDistance then
+                        ClosestDistance = Distance
+                        ClosestPlayer = player
+                    end
                 end
             end
         end
@@ -2759,3 +2710,34 @@ grmt.__index = newcclosure(function(self, v)
     end
     return backupindex(self, v)
 end)
+
+-- 🔹 AutoPrediction dla pingu
+local autoPredictionConnection
+local function handleAutoPrediction()
+    if autoPredictionConnection then
+        autoPredictionConnection:Disconnect()
+    end
+    if getgenv().Yuth.Silent.AutoPrediction then
+        autoPredictionConnection = RunService.Heartbeat:Connect(function()
+            local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+            local pingValue = string.split(ping, " ")[1]
+            local pingNumber = tonumber(pingValue)
+
+            if pingNumber < 30 then
+                getgenv().Yuth.Silent.Prediction = 0.05127486215
+            elseif pingNumber < 40 then
+                getgenv().Yuth.Silent.Prediction = 0.0376325238512
+            elseif pingNumber < 50 then
+                getgenv().Yuth.Silent.Prediction = 0.0612784671288532
+            elseif pingNumber < 60 then
+                getgenv().Yuth.Silent.Prediction = 0.04127462178465
+            elseif pingNumber < 70 then
+                getgenv().Yuth.Silent.Prediction = 0.0367345124
+            else
+                getgenv().Yuth.Silent.Prediction = 0.04712647126835
+            end
+        end)
+    end
+end
+
+getgenv().Yuth.Silent.AutoPredictionChanged = handleAutoPrediction
