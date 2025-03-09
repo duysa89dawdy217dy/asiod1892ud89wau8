@@ -23,6 +23,7 @@ local TargetStrafeSection = AimingTab:CreateSector("TargetStrafe", "right")
 local FlightSection = MovementTab:CreateSector("Flight", "right")
 local CFrameSection = MovementTab:CreateSector("CFrame", "Left")
 local MacroSection = MovementTab:CreateSector("Macro", "Left")
+local BunnyHopSection = MovementTab:CreateSector("BunnyHop", "Right")
 local AntilockSection = AimingTab:CreateSector("Antilock", "left")  -- Sekcja Silent Aim
 local VisualsSection = Visuals:CreateSector("ESP", "Left")
 local TexturesSection = Visuals:CreateSector("Texture Changer", "Right")
@@ -43,6 +44,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+
 
 
 -- Variables
@@ -1314,16 +1317,26 @@ if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
 
+-- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
+if not getgenv().SkyboxSettings then
+    getgenv().SkyboxSettings = {}
+end
+
 getgenv().SkyboxSettings = {
     Minecraft = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://1876545003", SkyboxDn = "rbxassetid://1876544331", SkyboxFt = "rbxassetid://1876542941", SkyboxLf = "rbxassetid://1876543392", SkyboxRt = "rbxassetid://1876543764", SkyboxUp = "rbxassetid://1876544642"}},
     Purple = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"}},
     DarkBlue = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://393845394", SkyboxDn = "rbxassetid://393845204", SkyboxFt = "rbxassetid://393845629", SkyboxLf = "rbxassetid://393845750", SkyboxRt = "rbxassetid://393845533", SkyboxUp = "rbxassetid://393845287"}},
+    Red = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://15832429892", SkyboxDn = "rbxassetid://15832430998", SkyboxFt = "rbxassetid://15832430210", SkyboxLf = "rbxassetid://15832430671", SkyboxRt = "rbxassetid://15832431198", SkyboxUp = "rbxassetid://15832429401"}},
+    Pink = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://12635309703", SkyboxDn = "rbxassetid://12635311686", SkyboxFt = "rbxassetid://12635312870", SkyboxLf = "rbxassetid://12635313718", SkyboxRt = "rbxassetid://12635315817", SkyboxUp = "rbxassetid://12635316856"}},
+    DarkGreen = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://566611187", SkyboxDn = "rbxassetid://566613198", SkyboxFt = "rbxassetid://566611142", SkyboxLf = "rbxassetid://566611266", SkyboxRt = "rbxassetid://566611300", SkyboxUp = "rbxassetid://566611218"}},
+    Green = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://11941775243", SkyboxDn = "rbxassetid://11941774975", SkyboxFt = "rbxassetid://11941774655", SkyboxLf = "rbxassetid://11941774369", SkyboxRt = "rbxassetid://11941774042", SkyboxUp = "rbxassetid://11941773718"}},
+    Yellow = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"}},
+    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
 }
 
--- Pobranie Lighting i zapisanie oryginalnego skyboxa (jeśli istnieje)
+-- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
 local lighting = game:GetService("Lighting")
 local originalSkybox = nil
-
 for _, child in pairs(lighting:GetChildren()) do
     if child:IsA("Sky") then
         originalSkybox = child:Clone()
@@ -1340,23 +1353,7 @@ local function changeSkybox()
         end
     end
 
-    -- Sprawdź, czy któryś skybox jest włączony
-    local anyEnabled = false
-    for _, settings in pairs(getgenv().SkyboxSettings) do
-        if settings.Enabled then
-            anyEnabled = true
-            break
-        end
-    end
-
-    -- Jeśli żaden customowy skybox nie jest włączony, przywróć oryginalny skybox gry
-    if not anyEnabled and originalSkybox then
-        originalSkybox:Clone().Parent = lighting
-        return
-    end
-
-    -- Ustaw nowy skybox
-    for _, settings in pairs(getgenv().SkyboxSettings) do
+    for skybox, settings in pairs(getgenv().SkyboxSettings) do
         if settings.Enabled then
             local newSky = Instance.new("Sky")
             newSky.Name = "CustomSkybox"
@@ -1372,17 +1369,28 @@ local function changeSkybox()
     end
 end
 
+-- Monitorowanie zmian w Enabled i aktualizacja skyboxa
+task.spawn(function()
+    local lastState = {}
+    for skybox, settings in pairs(getgenv().SkyboxSettings) do
+        lastState[skybox] = settings.Enabled
+    end
+
+    while task.wait(1) do -- Sprawdza co sekundę
+        for skybox, settings in pairs(getgenv().SkyboxSettings) do
+            if settings.Enabled ~= lastState[skybox] then
+                lastState[skybox] = settings.Enabled
+                changeSkybox()
+            end
+        end
+    end
+end)
+
 -- GUI - Przycisk do zmiany skyboxa
 for skybox, settings in pairs(getgenv().SkyboxSettings) do
     SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
-        -- Wyłącz wszystkie inne skyboxy
-        for otherSkybox, otherSettings in pairs(getgenv().SkyboxSettings) do
-            if otherSkybox ~= skybox then
-                otherSettings.Enabled = false
-            end
-        end
-        settings.Enabled = value
-        changeSkybox()
+        settings.Enabled = value -- Poprawiona nazwa zmiennej
+        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
     end)
 end
 
@@ -1438,200 +1446,6 @@ UserInputService.InputChanged:Connect(onMouseWheel)
 -- Update the toggle in the GUI and ensure it's reflected properly
 PlayerSection:AddToggle("Infinite Zoom", getgenv().Zoom.Enabled, function(value)
     toggleZoom(value) -- Call toggleZoom function to change the zoom state
-end)
-
-getgenv().ForceHit = {
-    Enabled = false,       -- Włącz/Wyłącz
-    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
-    Tracer = false,        -- Włącz/Wyłącz Tracer
-    Notifications = false, -- Włącz/Wyłącz Powiadomienia
-    Keybind = ""         -- Domyślny klawisz (można zmienić w ustawieniach)
-}
-
--- 📌 Pobranie usług
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local Target = nil
-local Tracer = Drawing.new("Line")
-local Highlight = Instance.new("Highlight")
-Highlight.Parent = game.CoreGui
-Highlight.Enabled = false
-Highlight.FillColor = Color3.fromRGB(255, 255, 255)
-Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-
--- 📌 Ustawienia Tracera
-Tracer.Thickness = 2
-Tracer.Color = Color3.fromRGB(255, 255, 255)
-Tracer.Transparency = 1
-Tracer.Visible = false
-
--- 📌 Powiadomienie Swindle.CC
-local isNotified = false -- Flaga kontrolująca, czy powiadomienie zostało wysłane
-
-function SwindleNotification(targetName, status)
-    if ForceHit.Notifications and not isNotified then
-        isNotified = true
-        StarterGui:SetCore("SendNotification", {
-            Title = "Swindle.CC",
-            Text = status .. " " .. targetName,
-            Icon = "",
-            Duration = 2.5
-        })
-    end
-end
-
--- 📌 Znalezienie najbliższego gracza do celownika
-function GetClosestToMouse()
-    local ClosestPlayer = nil
-    local ClosestDistance = math.huge
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local Head = player.Character:FindFirstChild("Head")
-            if Head then
-                local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
-                if OnScreen then
-                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
-                    if Distance < ClosestDistance then
-                        ClosestDistance = Distance
-                        ClosestPlayer = player
-                    end
-                end
-            end
-        end
-    end
-    return ClosestPlayer
-end
-
--- 📌 Aktualizacja Tracera
-local function UpdateTracer()
-    if ForceHit.Enabled and ForceHit.Tracer and Target and Target.Character and Target.Character:FindFirstChild("Head") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local HeadPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Target.Character.Head.Position)
-        local StartPos, StartOnScreen = workspace.CurrentCamera:WorldToViewportPoint(LocalPlayer.Character.HumanoidRootPart.Position)
-        if OnScreen and StartOnScreen then
-            Tracer.From = Vector2.new(StartPos.X, StartPos.Y)
-            Tracer.To = Vector2.new(HeadPos.X, HeadPos.Y)
-            Tracer.Visible = true
-        else
-            Tracer.Visible = false
-        end
-    else
-        Tracer.Visible = false
-    end
-end
-
-RunService.RenderStepped:Connect(UpdateTracer)
-
--- 📌 Funkcja strzelania w HEAD
-local function ShootBullet()
-    if not ForceHit.Enabled or not Target or not Target.Character then return end
-    
-    local Head = Target.Character:FindFirstChild("Head")
-    if not Head then return end
-
-    local HitPosition = Head.Position
-    local Offset = CFrame.new(0, 0, 0)
-
-    local args = {
-        [1] = "Shoot",
-        [2] = {
-            [1] = {
-                [1] = {
-                    ["Instance"] = Head,
-                    ["Normal"] = Vector3.new(0, 1, 0),
-                    ["Position"] = HitPosition
-                }
-            },
-            [2] = {
-                [1] = {
-                    ["thePart"] = Head,
-                    ["theOffset"] = Offset
-                }
-            },
-            [3] = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0),
-            [4] = HitPosition,
-            [5] = tick()
-        }
-    }
-
-    ReplicatedStorage.MainEvent:FireServer(unpack(args))
-end
-
--- 📌 Obsługa klawisza do wybierania celu (z keybindem)
-UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-    if Input.KeyCode.Name == ForceHit.Keybind then
-        if ForceHit.Enabled then
-            if not Target then
-                Target = GetClosestToMouse()
-                if Target then
-                    SwindleNotification(Target.Name, "Locked Onto")
-                    if ForceHit.Highlight and Target.Character then
-                        Highlight.Adornee = Target.Character
-                        Highlight.Enabled = true
-                    end
-                    Target.CharacterAdded:Connect(function(newCharacter)
-                        if Target == Players:GetPlayerFromCharacter(newCharacter) then
-                            Highlight.Adornee = newCharacter
-                        end
-                    end)
-                    isNotified = false
-                else
-                    SwindleNotification("No Target", "No enemies nearby!")
-                end
-            else
-                SwindleNotification(Target.Name, "Unlocked")
-                Target = nil
-                Tracer.Visible = false
-                Highlight.Enabled = false
-                Highlight.Adornee = nil
-                isNotified = false
-            end
-        else
-            SwindleNotification("ForceHit Disabled", "Can't lock target when ForceHit is disabled!")
-        end
-    end
-end)
-
--- 📌 Funkcja do obsługi resetu postaci
-local function OnCharacterAdded(character)
-    character.ChildAdded:Connect(function(tool)
-        if tool:IsA("Tool") then
-            tool.Activated:Connect(ShootBullet)
-        end
-    end)
-end
-
-LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
-
-if LocalPlayer.Character then
-    OnCharacterAdded(LocalPlayer.Character)
-end
-
-ForceHitSection:AddToggle("Force Hit", getgenv().ForceHit.Enabled, function(value)
-    getgenv().ForceHit.Enabled = value
-end)
-
-ForceHitSection:AddTextbox("Force Hit Keybind", getgenv().ForceHit.Keybind, function(value)
-    getgenv().ForceHit.Keybind = value
-end)
-
-ForceHitSection:AddToggle("Highlight Target", getgenv().ForceHit.Highlight, function(value)
-    getgenv().ForceHit.Highlight = value
-end)
-
-ForceHitSection:AddToggle("Tracers", getgenv().ForceHit.Tracer, function(value)
-    getgenv().ForceHit.Tracer = value
-end)
-
-ForceHitSection:AddToggle("Notifications", getgenv().ForceHit.Notifications, function(value)
-    getgenv().ForceHit.Notifications = value
 end)
 
 -- GUI ustawienia aimbota
@@ -1858,8 +1672,10 @@ end)
 
 getgenv().Visuals = {
     ForceFieldEnabled = false,
+    ForceFieldGunEnabled = false,
     TrailEnabled = false,
     ForceFieldColor = Color3.fromRGB(255, 255, 255),
+    ForceFieldGunColor = Color3.fromRGB(255, 255, 255),
     TrailColor = Color3.fromRGB(255, 255, 255),
     TrailLifetime = 1.5,
     TrailWidth = 0.6,
@@ -1887,6 +1703,30 @@ local function updateForceField()
                         if getgenv().Visuals.OriginalColors[part] then
                             part.Color = getgenv().Visuals.OriginalColors[part]
                         end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function updateForceFieldGun()
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local handle = tool:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                if getgenv().Visuals.ForceFieldGunEnabled then
+                    -- Zapisz oryginalny kolor przed zmianą
+                    if not getgenv().Visuals.OriginalColors[handle] then
+                        getgenv().Visuals.OriginalColors[handle] = handle.Color
+                    end
+                    handle.Material = Enum.Material.ForceField
+                    handle.Color = getgenv().Visuals.ForceFieldGunColor
+                else
+                    handle.Material = Enum.Material.Plastic
+                    -- Przywróć oryginalny kolor
+                    if getgenv().Visuals.OriginalColors[handle] then
+                        handle.Color = getgenv().Visuals.OriginalColors[handle]
                     end
                 end
             end
@@ -1940,6 +1780,7 @@ end)
 
 RunService.Heartbeat:Connect(function()
     updateForceField()
+    updateForceFieldGun()
     updateTrail()
 end)
 
@@ -1947,8 +1788,16 @@ TrailSection:AddToggle("Enable ForceField", getgenv().Visuals.ForceFieldEnabled,
     getgenv().Visuals.ForceFieldEnabled = value
 end)
 
+TrailSection:AddToggle("Enable ForceField Gun", getgenv().Visuals.ForceFieldGunEnabled, function(value)
+    getgenv().Visuals.ForceFieldGunEnabled = value
+end)
+
 TrailSection:AddColorpicker("ForceField Color", getgenv().Visuals.ForceFieldColor, function(color)
     getgenv().Visuals.ForceFieldColor = color
+end)
+
+TrailSection:AddColorpicker("ForceField Gun Color", getgenv().Visuals.ForceFieldGunColor, function(color)
+    getgenv().Visuals.ForceFieldGunColor = color
 end)
 
 TrailSection:AddToggle("Enable Trail", getgenv().Visuals.TrailEnabled, function(value)
@@ -2617,6 +2466,209 @@ TrailSection:AddTextbox("China Hat Sides", tostring(getgenv().ChinaHat.Sides), f
     end
 end)
 
+getgenv().ForceHit = {
+    Enabled = false,       -- Włącz/Wyłącz
+    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
+    Tracer = false,        -- Włącz/Wyłącz Tracer
+    Notifications = false, -- Włącz/Wyłącz Powiadomienia
+    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
+}
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Target = nil
+local Tracer = Drawing.new("Line")
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = game.CoreGui
+Highlight.Enabled = false
+Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+getgenv().ForceHit = {
+    Enabled = false,       -- Włącz/Wyłącz
+    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
+    Tracer = false,        -- Włącz/Wyłącz Tracer
+    Notifications = false, -- Włącz/Wyłącz Powiadomienia
+    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
+}
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Target = nil
+local Tracer = Drawing.new("Line")
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = game.CoreGui
+Highlight.Enabled = false
+Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+-- 📌 Ustawienia Tracera
+Tracer.Thickness = 2
+Tracer.Color = Color3.fromRGB(255, 255, 255)
+Tracer.Transparency = 1
+Tracer.Visible = false
+
+-- 📌 Powiadomienie Swindle.CC
+local isNotified = false -- Flaga kontrolująca, czy powiadomienie zostało wysłane
+
+function SwindleNotification(targetName, status)
+    if ForceHit.Notifications and not isNotified then
+        isNotified = true
+        StarterGui:SetCore("SendNotification", {
+            Title = "Swindle.CC",
+            Text = status .. " " .. targetName,
+            Icon = "",
+            Duration = 2.5
+        })
+    end
+end
+
+-- 📌 Znalezienie najbliższego gracza do celownika
+function GetClosestToMouse()
+    local ClosestPlayer = nil
+    local ClosestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local Head = player.Character.Head
+            local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+            if OnScreen then
+                local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
+                if Distance < ClosestDistance then
+                    ClosestDistance = Distance
+                    ClosestPlayer = player
+                end
+            end
+        end
+    end
+    return ClosestPlayer
+end
+
+-- 📌 Aktualizacja Tracera
+local function UpdateTracer()
+    if ForceHit.Enabled and ForceHit.Tracer and Target and Target.Character and Target.Character:FindFirstChild("Head") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local HeadPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Target.Character.Head.Position)
+        local StartPos, StartOnScreen = workspace.CurrentCamera:WorldToViewportPoint(LocalPlayer.Character.HumanoidRootPart.Position)
+        if OnScreen and StartOnScreen then
+            Tracer.From = Vector2.new(StartPos.X, StartPos.Y)
+            Tracer.To = Vector2.new(HeadPos.X, HeadPos.Y)
+            Tracer.Visible = true
+        else
+            Tracer.Visible = false
+        end
+    else
+        Tracer.Visible = false
+    end
+end
+
+RunService.RenderStepped:Connect(UpdateTracer)
+
+-- 📌 Funkcja strzelania w HEAD
+local function ShootBullet()
+    if not ForceHit.Enabled or not Target or not Target.Character then return end
+    
+    local Head = Target.Character:FindFirstChild("Head")
+    if not Head then return end
+
+    local HitPosition = Head.Position
+    local Offset = CFrame.new(0, 0, 0)
+
+    local args = {
+        [1] = "Shoot",
+        [2] = {
+            [1] = {
+                [1] = {
+                    ["Instance"] = Head,
+                    ["Normal"] = Vector3.new(0, 1, 0),
+                    ["Position"] = HitPosition
+                }
+            },
+            [2] = {
+                [1] = {
+                    ["thePart"] = Head,
+                    ["theOffset"] = Offset
+                }
+            },
+            [3] = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0),
+            [4] = HitPosition,
+            [5] = tick()
+        }
+    }
+
+    ReplicatedStorage.MainEvent:FireServer(unpack(args))
+end
+
+-- 📌 Obsługa klawisza do wybierania celu (z keybindem)
+UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if Input.KeyCode.Name == ForceHit.Keybind then
+        if ForceHit.Enabled then
+            if not Target then
+                Target = GetClosestToMouse()
+                if Target then
+                    SwindleNotification(Target.Name, "Locked Onto")
+                    if ForceHit.Highlight and Target.Character then
+                        Highlight.Adornee = Target.Character
+                        Highlight.Enabled = true
+                    end
+                    Target.CharacterAdded:Connect(function(newCharacter)
+                        if Target == Players:GetPlayerFromCharacter(newCharacter) then
+                            Highlight.Adornee = newCharacter
+                        end
+                    end)
+                    isNotified = false
+                else
+                    SwindleNotification("No Target", "No enemies nearby!")
+                end
+            else
+                SwindleNotification(Target.Name, "Unlocked")
+                Target = nil
+                Tracer.Visible = false
+                Highlight.Enabled = false
+                Highlight.Adornee = nil
+                isNotified = false
+            end
+        else
+            SwindleNotification("ForceHit Disabled", "Can't lock target when ForceHit is disabled!")
+        end
+    end
+end)
+
+-- 📌 Funkcja do obsługi resetu postaci
+local function OnCharacterAdded(character)
+    character.ChildAdded:Connect(function(tool)
+        if tool:IsA("Tool") then
+            tool.Activated:Connect(ShootBullet)
+        end
+    end)
+end
+
+LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
+
+if LocalPlayer.Character then
+    OnCharacterAdded(LocalPlayer.Character)
+end
+
+ForceHitSection:AddToggle("Force Hit", getgenv().ForceHit.Enabled, function(value)
+    getgenv().ForceHit.Enabled = value
+end)
+
+ForceHitSection:AddTextbox("Force Hit Keybind", getgenv().ForceHit.Keybind, function(value)
+    getgenv().ForceHit.Keybind = value
+end)
+
+ForceHitSection:AddToggle("Highlight Target", getgenv().ForceHit.Highlight, function(value)
+    getgenv().ForceHit.Highlight = value
+end)
+
+ForceHitSection:AddToggle("Tracers", getgenv().ForceHit.Tracer, function(value)
+    getgenv().ForceHit.Tracer = value
+end)
+
+ForceHitSection:AddToggle("Notifications", getgenv().ForceHit.Notifications, function(value)
+    getgenv().ForceHit.Notifications = value
+end)
+
 -- 🔹 Funkcja do obliczania prędkości (resolver)
 local LastPositions = {}
 
@@ -2707,34 +2759,3 @@ grmt.__index = newcclosure(function(self, v)
     end
     return backupindex(self, v)
 end)
-
--- 🔹 AutoPrediction dla pingu
-local autoPredictionConnection
-local function handleAutoPrediction()
-    if autoPredictionConnection then
-        autoPredictionConnection:Disconnect()
-    end
-    if getgenv().Yuth.Silent.AutoPrediction then
-        autoPredictionConnection = RunService.Heartbeat:Connect(function()
-            local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-            local pingValue = string.split(ping, " ")[1]
-            local pingNumber = tonumber(pingValue)
-
-            if pingNumber < 30 then
-                getgenv().Yuth.Silent.Prediction = 0.05127486215
-            elseif pingNumber < 40 then
-                getgenv().Yuth.Silent.Prediction = 0.0376325238512
-            elseif pingNumber < 50 then
-                getgenv().Yuth.Silent.Prediction = 0.0612784671288532
-            elseif pingNumber < 60 then
-                getgenv().Yuth.Silent.Prediction = 0.04127462178465
-            elseif pingNumber < 70 then
-                getgenv().Yuth.Silent.Prediction = 0.0367345124
-            else
-                getgenv().Yuth.Silent.Prediction = 0.04712647126835
-            end
-        end)
-    end
-end
-
-getgenv().Yuth.Silent.AutoPredictionChanged = handleAutoPrediction
