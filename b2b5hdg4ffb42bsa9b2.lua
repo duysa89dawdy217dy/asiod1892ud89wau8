@@ -36,6 +36,7 @@ local WorldSection = Visuals:CreateSector("World", "Right")
 local SkyboxesSection = Visuals:CreateSector("Skyboxes", "Right")
 local AvatarSection = Misc:CreateSector("Avatar Stuff", "Right")
 local StrechScreenSection = Misc:CreateSector("Strech Screen", "Right")
+local ForceHitSection = AimingTab:CreateSector("Force Hit", "Right")
 
 -- Load services
 local Players = game:GetService("Players")
@@ -1147,6 +1148,41 @@ PlayerSection:AddToggle("Floss dance", getgenv().Floss.Enabled, function(value)
     getgenv().Floss.Enabled = value
 end)
 
+-- Globalne przechowywanie ustawień
+getgenv().NoRecoil = {
+    Enabled = false
+}
+
+-- Funkcja sprawdzająca, czy skrypt to "Framework"
+function isframework(scriptInstance)
+    return tostring(scriptInstance) == "Framework"
+end
+
+-- Funkcja sprawdzająca argumenty
+function checkArgs(instance, index)
+    return tostring(instance):lower():find("camera") and tostring(index) == "CFrame"
+end
+
+-- Hookowanie funkcji __newindex
+local newindex
+newindex = hookmetamethod(game, "__newindex", function(self, index, value)
+    if not getgenv().NoRecoil.Enabled then  -- Jeśli NoRecoil jest wyłączone, nie rób nic
+        return newindex(self, index, value)
+    end
+
+    local callingScr = getcallingscript()
+    if isframework(callingScr) and checkArgs(self, index) then
+        return  -- Blokuje zmianę CFrame kamery, jeśli NoRecoil jest włączone
+    end
+
+    return newindex(self, index, value)
+end)
+
+-- Dodanie przełącznika do GUI w sekcji "PlayerSection"
+PlayerSection:AddToggle("No Recoil", getgenv().NoRecoil.Enabled, function(value)
+    getgenv().NoRecoil.Enabled = value
+end)
+
 getgenv().Light = {
     Enabled = false,  -- Włącz lub wyłącz ciemność
 }
@@ -1278,26 +1314,16 @@ if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
 
--- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
-if not getgenv().SkyboxSettings then
-    getgenv().SkyboxSettings = {}
-end
-
 getgenv().SkyboxSettings = {
     Minecraft = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://1876545003", SkyboxDn = "rbxassetid://1876544331", SkyboxFt = "rbxassetid://1876542941", SkyboxLf = "rbxassetid://1876543392", SkyboxRt = "rbxassetid://1876543764", SkyboxUp = "rbxassetid://1876544642"}},
     Purple = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"}},
     DarkBlue = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://393845394", SkyboxDn = "rbxassetid://393845204", SkyboxFt = "rbxassetid://393845629", SkyboxLf = "rbxassetid://393845750", SkyboxRt = "rbxassetid://393845533", SkyboxUp = "rbxassetid://393845287"}},
-    Red = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://15832429892", SkyboxDn = "rbxassetid://15832430998", SkyboxFt = "rbxassetid://15832430210", SkyboxLf = "rbxassetid://15832430671", SkyboxRt = "rbxassetid://15832431198", SkyboxUp = "rbxassetid://15832429401"}},
-    Pink = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://12635309703", SkyboxDn = "rbxassetid://12635311686", SkyboxFt = "rbxassetid://12635312870", SkyboxLf = "rbxassetid://12635313718", SkyboxRt = "rbxassetid://12635315817", SkyboxUp = "rbxassetid://12635316856"}},
-    DarkGreen = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://566611187", SkyboxDn = "rbxassetid://566613198", SkyboxFt = "rbxassetid://566611142", SkyboxLf = "rbxassetid://566611266", SkyboxRt = "rbxassetid://566611300", SkyboxUp = "rbxassetid://566611218"}},
-    Green = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://11941775243", SkyboxDn = "rbxassetid://11941774975", SkyboxFt = "rbxassetid://11941774655", SkyboxLf = "rbxassetid://11941774369", SkyboxRt = "rbxassetid://11941774042", SkyboxUp = "rbxassetid://11941773718"}},
-    Yellow = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"}},
-    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
 }
 
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
+-- Pobranie Lighting i zapisanie oryginalnego skyboxa (jeśli istnieje)
 local lighting = game:GetService("Lighting")
 local originalSkybox = nil
+
 for _, child in pairs(lighting:GetChildren()) do
     if child:IsA("Sky") then
         originalSkybox = child:Clone()
@@ -1314,7 +1340,23 @@ local function changeSkybox()
         end
     end
 
-    for skybox, settings in pairs(getgenv().SkyboxSettings) do
+    -- Sprawdź, czy któryś skybox jest włączony
+    local anyEnabled = false
+    for _, settings in pairs(getgenv().SkyboxSettings) do
+        if settings.Enabled then
+            anyEnabled = true
+            break
+        end
+    end
+
+    -- Jeśli żaden customowy skybox nie jest włączony, przywróć oryginalny skybox gry
+    if not anyEnabled and originalSkybox then
+        originalSkybox:Clone().Parent = lighting
+        return
+    end
+
+    -- Ustaw nowy skybox
+    for _, settings in pairs(getgenv().SkyboxSettings) do
         if settings.Enabled then
             local newSky = Instance.new("Sky")
             newSky.Name = "CustomSkybox"
@@ -1330,28 +1372,17 @@ local function changeSkybox()
     end
 end
 
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
-task.spawn(function()
-    local lastState = {}
-    for skybox, settings in pairs(getgenv().SkyboxSettings) do
-        lastState[skybox] = settings.Enabled
-    end
-
-    while task.wait(1) do -- Sprawdza co sekundę
-        for skybox, settings in pairs(getgenv().SkyboxSettings) do
-            if settings.Enabled ~= lastState[skybox] then
-                lastState[skybox] = settings.Enabled
-                changeSkybox()
-            end
-        end
-    end
-end)
-
 -- GUI - Przycisk do zmiany skyboxa
 for skybox, settings in pairs(getgenv().SkyboxSettings) do
     SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
-        settings.Enabled = value -- Poprawiona nazwa zmiennej
-        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
+        -- Wyłącz wszystkie inne skyboxy
+        for otherSkybox, otherSettings in pairs(getgenv().SkyboxSettings) do
+            if otherSkybox ~= skybox then
+                otherSettings.Enabled = false
+            end
+        end
+        settings.Enabled = value
+        changeSkybox()
     end)
 end
 
@@ -1407,6 +1438,200 @@ UserInputService.InputChanged:Connect(onMouseWheel)
 -- Update the toggle in the GUI and ensure it's reflected properly
 PlayerSection:AddToggle("Infinite Zoom", getgenv().Zoom.Enabled, function(value)
     toggleZoom(value) -- Call toggleZoom function to change the zoom state
+end)
+
+getgenv().ForceHit = {
+    Enabled = false,       -- Włącz/Wyłącz
+    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
+    Tracer = false,        -- Włącz/Wyłącz Tracer
+    Notifications = false, -- Włącz/Wyłącz Powiadomienia
+    Keybind = ""         -- Domyślny klawisz (można zmienić w ustawieniach)
+}
+
+-- 📌 Pobranie usług
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Target = nil
+local Tracer = Drawing.new("Line")
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = game.CoreGui
+Highlight.Enabled = false
+Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+-- 📌 Ustawienia Tracera
+Tracer.Thickness = 2
+Tracer.Color = Color3.fromRGB(255, 255, 255)
+Tracer.Transparency = 1
+Tracer.Visible = false
+
+-- 📌 Powiadomienie Swindle.CC
+local isNotified = false -- Flaga kontrolująca, czy powiadomienie zostało wysłane
+
+function SwindleNotification(targetName, status)
+    if ForceHit.Notifications and not isNotified then
+        isNotified = true
+        StarterGui:SetCore("SendNotification", {
+            Title = "Swindle.CC",
+            Text = status .. " " .. targetName,
+            Icon = "",
+            Duration = 2.5
+        })
+    end
+end
+
+-- 📌 Znalezienie najbliższego gracza do celownika
+function GetClosestToMouse()
+    local ClosestPlayer = nil
+    local ClosestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local Head = player.Character:FindFirstChild("Head")
+            if Head then
+                local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+                if OnScreen then
+                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
+                    if Distance < ClosestDistance then
+                        ClosestDistance = Distance
+                        ClosestPlayer = player
+                    end
+                end
+            end
+        end
+    end
+    return ClosestPlayer
+end
+
+-- 📌 Aktualizacja Tracera
+local function UpdateTracer()
+    if ForceHit.Enabled and ForceHit.Tracer and Target and Target.Character and Target.Character:FindFirstChild("Head") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local HeadPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Target.Character.Head.Position)
+        local StartPos, StartOnScreen = workspace.CurrentCamera:WorldToViewportPoint(LocalPlayer.Character.HumanoidRootPart.Position)
+        if OnScreen and StartOnScreen then
+            Tracer.From = Vector2.new(StartPos.X, StartPos.Y)
+            Tracer.To = Vector2.new(HeadPos.X, HeadPos.Y)
+            Tracer.Visible = true
+        else
+            Tracer.Visible = false
+        end
+    else
+        Tracer.Visible = false
+    end
+end
+
+RunService.RenderStepped:Connect(UpdateTracer)
+
+-- 📌 Funkcja strzelania w HEAD
+local function ShootBullet()
+    if not ForceHit.Enabled or not Target or not Target.Character then return end
+    
+    local Head = Target.Character:FindFirstChild("Head")
+    if not Head then return end
+
+    local HitPosition = Head.Position
+    local Offset = CFrame.new(0, 0, 0)
+
+    local args = {
+        [1] = "Shoot",
+        [2] = {
+            [1] = {
+                [1] = {
+                    ["Instance"] = Head,
+                    ["Normal"] = Vector3.new(0, 1, 0),
+                    ["Position"] = HitPosition
+                }
+            },
+            [2] = {
+                [1] = {
+                    ["thePart"] = Head,
+                    ["theOffset"] = Offset
+                }
+            },
+            [3] = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0),
+            [4] = HitPosition,
+            [5] = tick()
+        }
+    }
+
+    ReplicatedStorage.MainEvent:FireServer(unpack(args))
+end
+
+-- 📌 Obsługa klawisza do wybierania celu (z keybindem)
+UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if Input.KeyCode.Name == ForceHit.Keybind then
+        if ForceHit.Enabled then
+            if not Target then
+                Target = GetClosestToMouse()
+                if Target then
+                    SwindleNotification(Target.Name, "Locked Onto")
+                    if ForceHit.Highlight and Target.Character then
+                        Highlight.Adornee = Target.Character
+                        Highlight.Enabled = true
+                    end
+                    Target.CharacterAdded:Connect(function(newCharacter)
+                        if Target == Players:GetPlayerFromCharacter(newCharacter) then
+                            Highlight.Adornee = newCharacter
+                        end
+                    end)
+                    isNotified = false
+                else
+                    SwindleNotification("No Target", "No enemies nearby!")
+                end
+            else
+                SwindleNotification(Target.Name, "Unlocked")
+                Target = nil
+                Tracer.Visible = false
+                Highlight.Enabled = false
+                Highlight.Adornee = nil
+                isNotified = false
+            end
+        else
+            SwindleNotification("ForceHit Disabled", "Can't lock target when ForceHit is disabled!")
+        end
+    end
+end)
+
+-- 📌 Funkcja do obsługi resetu postaci
+local function OnCharacterAdded(character)
+    character.ChildAdded:Connect(function(tool)
+        if tool:IsA("Tool") then
+            tool.Activated:Connect(ShootBullet)
+        end
+    end)
+end
+
+LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
+
+if LocalPlayer.Character then
+    OnCharacterAdded(LocalPlayer.Character)
+end
+
+ForceHitSection:AddToggle("Force Hit", getgenv().ForceHit.Enabled, function(value)
+    getgenv().ForceHit.Enabled = value
+end)
+
+ForceHitSection:AddTextbox("Force Hit Keybind", getgenv().ForceHit.Keybind, function(value)
+    getgenv().ForceHit.Keybind = value
+end)
+
+ForceHitSection:AddToggle("Highlight Target", getgenv().ForceHit.Highlight, function(value)
+    getgenv().ForceHit.Highlight = value
+end)
+
+ForceHitSection:AddToggle("Tracers", getgenv().ForceHit.Tracer, function(value)
+    getgenv().ForceHit.Tracer = value
+end)
+
+ForceHitSection:AddToggle("Notifications", getgenv().ForceHit.Notifications, function(value)
+    getgenv().ForceHit.Notifications = value
 end)
 
 -- GUI ustawienia aimbota
@@ -1821,6 +2046,64 @@ local Mouse = LocalPlayer:GetMouse()
 local SilentAimTarget = nil
 local HighlightObject = nil
 
+-- Globalna zmienna do zarządzania BunnyHop
+getgenv().BunnyHop = {
+    Enabled = false,
+    Power = 50,  -- Domyślna moc skoku
+    SpeedBoost = 1.5  -- Mnożnik prędkości ruchu podczas skoku
+}
+
+-- Funkcja obsługująca BunnyHop
+local function ToggleBunnyHop(state)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    if state then
+        -- Aktywacja BunnyHop
+        getgenv().BunnyHop.Connection = game:GetService("RunService").RenderStepped:Connect(function()
+            if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+                local humanoid = character.Humanoid
+                local rootPart = character.HumanoidRootPart
+                
+                if humanoid.FloorMaterial == Enum.Material.Air then
+                    -- Przyspieszenie ruchu w powietrzu
+                    local moveDirection = humanoid.MoveDirection
+                    rootPart.Velocity = Vector3.new(moveDirection.X * getgenv().BunnyHop.SpeedBoost * 30, rootPart.Velocity.Y, moveDirection.Z * getgenv().BunnyHop.SpeedBoost * 30)
+                else
+                    -- Wykonanie skoku
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    humanoid.JumpPower = getgenv().BunnyHop.Power
+                end
+            end
+        end)
+    else
+        -- Dezaktywacja BunnyHop
+        if getgenv().BunnyHop.Connection then
+            getgenv().BunnyHop.Connection:Disconnect()
+            getgenv().BunnyHop.Connection = nil
+        end
+    end
+end
+
+-- Dodaje opcję Toggle do sektora BunnyHop
+BunnyHopSection:AddToggle("Enable BunnyHop", getgenv().BunnyHop.Enabled, function(value)
+    getgenv().BunnyHop.Enabled = value
+    ToggleBunnyHop(value)
+end)
+
+-- Dodaje Slider do regulacji mocy skoku
+BunnyHopSection:AddSlider("BunnyHop Power", 10, 100, getgenv().BunnyHop.Power, 5, function(value)
+    getgenv().BunnyHop.Power = value
+end)
+
+-- Dodaje Textbox do wpisania mnożnika prędkości w powietrzu
+BunnyHopSection:AddTextbox("BunnyHop Speed Boost", getgenv().BunnyHop.SpeedBoost, function(value)
+    local newSpeedBoost = tonumber(value)
+    if newSpeedBoost then
+        getgenv().BunnyHop.SpeedBoost = math.clamp(newSpeedBoost, 1, 5) -- Ograniczenie wartości (1-3)
+    end
+end)
+
 getgenv().rapidfire = false
 
 local player = game.Players.LocalPlayer
@@ -1863,7 +2146,7 @@ userInputService.InputEnded:Connect(onMouseRelease)
 
 spawn(continuouslyActivateHeldItem)
 
-PlayerSection:AddToggle("Faster shooting", getgenv().rapidfire, function(value)
+PlayerSection:AddToggle("Enable Rapid Fire", getgenv().rapidfire, function(value)
     getgenv().rapidfire = value
 end)
 
