@@ -514,7 +514,7 @@ getgenv().Esp = {
     TracersFollowMouse = false
 }
 
-VisualsSection:AddToggle("ESP Enabled", getgenv().Esp.Enabled, function(value)
+VisualsSection:AddToggle("Enable ESP", getgenv().Esp.Enabled, function(value)
     getgenv().Esp.Enabled = value
 end)
 
@@ -1298,7 +1298,7 @@ end
 
 task.spawn(MonitorClockTime)
 
-WorldSection:AddToggle("Enable Camlock", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
+WorldSection:AddToggle("Time Changer", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if value then
         config.PreviousValue = Lighting.ClockTime -- Zapisuje poprzedni czas tylko raz, gdy Enabled przechodzi na true
@@ -1317,7 +1317,11 @@ if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
 
--- Definicja dostępnych skyboxów
+-- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
+if not getgenv().SkyboxSettings then
+    getgenv().SkyboxSettings = {}
+end
+
 getgenv().SkyboxSettings = {
     Minecraft = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://1876545003", SkyboxDn = "rbxassetid://1876544331", SkyboxFt = "rbxassetid://1876542941", SkyboxLf = "rbxassetid://1876543392", SkyboxRt = "rbxassetid://1876543764", SkyboxUp = "rbxassetid://1876544642"}},
     Purple = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=14543264135", SkyboxDn = "http://www.roblox.com/asset/?id=14543358958", SkyboxFt = "http://www.roblox.com/asset/?id=14543257810", SkyboxLf = "http://www.roblox.com/asset/?id=14543275895", SkyboxRt = "http://www.roblox.com/asset/?id=14543280890", SkyboxUp = "http://www.roblox.com/asset/?id=14543371676"}},
@@ -1327,10 +1331,10 @@ getgenv().SkyboxSettings = {
     DarkGreen = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://566611187", SkyboxDn = "rbxassetid://566613198", SkyboxFt = "rbxassetid://566611142", SkyboxLf = "rbxassetid://566611266", SkyboxRt = "rbxassetid://566611300", SkyboxUp = "rbxassetid://566611218"}},
     Green = {Enabled = false, Assets = {SkyboxBk = "rbxassetid://11941775243", SkyboxDn = "rbxassetid://11941774975", SkyboxFt = "rbxassetid://11941774655", SkyboxLf = "rbxassetid://11941774369", SkyboxRt = "rbxassetid://11941774042", SkyboxUp = "rbxassetid://11941773718"}},
     Yellow = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=15670828196", SkyboxDn = "http://www.roblox.com/asset/?id=15670829373", SkyboxFt = "http://www.roblox.com/asset/?id=15670830476", SkyboxLf = "http://www.roblox.com/asset/?id=15670831662", SkyboxRt = "http://www.roblox.com/asset/?id=15670833256", SkyboxUp = "http://www.roblox.com/asset/?id=15670834206"}},
-    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}}
+    Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
 }
 
--- Pobranie Lighting i zapisanie oryginalnego skyboxa
+-- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
 local lighting = game:GetService("Lighting")
 local originalSkybox = nil
 for _, child in pairs(lighting:GetChildren()) do
@@ -1342,20 +1346,15 @@ end
 
 -- Funkcja do zmiany skyboxa
 local function changeSkybox()
-    local foundEnabled = false
-    
+    -- Usuń obecny skybox
+    for _, child in pairs(lighting:GetChildren()) do
+        if child:IsA("Sky") then
+            child:Destroy()
+        end
+    end
+
     for skybox, settings in pairs(getgenv().SkyboxSettings) do
         if settings.Enabled then
-            foundEnabled = true
-
-            -- Usunięcie obecnego skyboxa
-            for _, child in pairs(lighting:GetChildren()) do
-                if child:IsA("Sky") then
-                    child:Destroy()
-                end
-            end
-
-            -- Tworzenie nowego skyboxa
             local newSky = Instance.new("Sky")
             newSky.Name = "CustomSkybox"
             newSky.SkyboxBk = settings.Assets.SkyboxBk
@@ -1365,34 +1364,33 @@ local function changeSkybox()
             newSky.SkyboxRt = settings.Assets.SkyboxRt
             newSky.SkyboxUp = settings.Assets.SkyboxUp
             newSky.Parent = lighting
-
-            break -- Wybieramy pierwszy aktywowany skybox
+            break
         end
-    end
-
-    -- Przywrócenie oryginalnego skyboxa, jeśli żaden nie jest aktywny
-    if not foundEnabled and originalSkybox then
-        for _, child in pairs(lighting:GetChildren()) do
-            if child:IsA("Sky") then
-                child:Destroy()
-            end
-        end
-        originalSkybox:Clone().Parent = lighting
     end
 end
+
+-- Monitorowanie zmian w Enabled i aktualizacja skyboxa
+task.spawn(function()
+    local lastState = {}
+    for skybox, settings in pairs(getgenv().SkyboxSettings) do
+        lastState[skybox] = settings.Enabled
+    end
+
+    while task.wait(1) do -- Sprawdza co sekundę
+        for skybox, settings in pairs(getgenv().SkyboxSettings) do
+            if settings.Enabled ~= lastState[skybox] then
+                lastState[skybox] = settings.Enabled
+                changeSkybox()
+            end
+        end
+    end
+end)
 
 -- GUI - Przycisk do zmiany skyboxa
 for skybox, settings in pairs(getgenv().SkyboxSettings) do
     SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
-        -- Wyłącz wszystkie inne skyboxy, jeśli użytkownik włącza nowy
-        for otherSkybox, otherSettings in pairs(getgenv().SkyboxSettings) do
-            if otherSkybox ~= skybox then
-                otherSettings.Enabled = false
-            end
-        end
-        
-        settings.Enabled = value
-        changeSkybox()
+        settings.Enabled = value -- Poprawiona nazwa zmiennej
+        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
     end)
 end
 
@@ -1480,7 +1478,7 @@ AimbotSection:AddTextbox("MouseTp", tostring(getgenv().Aimbot.FallOffset), funct
 end)
 
 -- GUI ustawienia Silent Aim
-SilentAimSection:AddToggle("Silent Aim Enabled", getgenv().Yuth.Silent.Enabled, function(value)
+SilentAimSection:AddToggle("Enable Silent aim", getgenv().Yuth.Silent.Enabled, function(value)
     getgenv().Yuth.Silent.Enabled = value
     if not value then
         SilentAimTarget = nil
@@ -1500,7 +1498,7 @@ SilentAimSection:AddDropdown("Hitpart", {"Head", "UpperTorso", "HumanoidRootPart
     getgenv().Yuth.Silent.Part = value
 end)
 
-SilentAimSection:AddToggle("Highlight Enabled", getgenv().Yuth.Highlight.Enabled, function(value)
+SilentAimSection:AddToggle("Highlight Target", getgenv().Yuth.Highlight.Enabled, function(value)
     getgenv().Yuth.Highlight.Enabled = value
     if not value then
         RemoveHighlight()
@@ -1585,7 +1583,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-FlightSection:AddToggle("Flight Enable", getgenv().Flight.Enabled, function(value)
+FlightSection:AddToggle("Enable Flight", getgenv().Flight.Enabled, function(value)
     getgenv().Flight.Enabled = value
 end)
 
@@ -1654,7 +1652,7 @@ end
 UserInputService.InputBegan:Connect(onToggleKeyPressed)
 
 -- Dodanie suwaczka w GUI do sekcji CFrame
-CFrameSection:AddToggle("CFrame Speed", getgenv().cframe.Enabled, function(value)
+CFrameSection:AddToggle("Enable CFrame", getgenv().cframe.Enabled, function(value)
     getgenv().cframe.Enabled = value
     if not value and runServiceConnection then
         runServiceConnection:Disconnect()
@@ -1674,8 +1672,10 @@ end)
 
 getgenv().Visuals = {
     ForceFieldEnabled = false,
+    ForceFieldGunEnabled = false,
     TrailEnabled = false,
     ForceFieldColor = Color3.fromRGB(255, 255, 255),
+    ForceFieldGunColor = Color3.fromRGB(255, 255, 255),
     TrailColor = Color3.fromRGB(255, 255, 255),
     TrailLifetime = 1.5,
     TrailWidth = 0.6,
@@ -1703,6 +1703,30 @@ local function updateForceField()
                         if getgenv().Visuals.OriginalColors[part] then
                             part.Color = getgenv().Visuals.OriginalColors[part]
                         end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function updateForceFieldGun()
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local handle = tool:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                if getgenv().Visuals.ForceFieldGunEnabled then
+                    -- Zapisz oryginalny kolor przed zmianą
+                    if not getgenv().Visuals.OriginalColors[handle] then
+                        getgenv().Visuals.OriginalColors[handle] = handle.Color
+                    end
+                    handle.Material = Enum.Material.ForceField
+                    handle.Color = getgenv().Visuals.ForceFieldGunColor
+                else
+                    handle.Material = Enum.Material.Plastic
+                    -- Przywróć oryginalny kolor
+                    if getgenv().Visuals.OriginalColors[handle] then
+                        handle.Color = getgenv().Visuals.OriginalColors[handle]
                     end
                 end
             end
@@ -1756,6 +1780,7 @@ end)
 
 RunService.Heartbeat:Connect(function()
     updateForceField()
+    updateForceFieldGun()
     updateTrail()
 end)
 
@@ -1763,8 +1788,16 @@ TrailSection:AddToggle("Enable ForceField", getgenv().Visuals.ForceFieldEnabled,
     getgenv().Visuals.ForceFieldEnabled = value
 end)
 
+TrailSection:AddToggle("Enable ForceField Gun", getgenv().Visuals.ForceFieldGunEnabled, function(value)
+    getgenv().Visuals.ForceFieldGunEnabled = value
+end)
+
 TrailSection:AddColorpicker("ForceField Color", getgenv().Visuals.ForceFieldColor, function(color)
     getgenv().Visuals.ForceFieldColor = color
+end)
+
+TrailSection:AddColorpicker("ForceField Gun Color", getgenv().Visuals.ForceFieldGunColor, function(color)
+    getgenv().Visuals.ForceFieldGunColor = color
 end)
 
 TrailSection:AddToggle("Enable Trail", getgenv().Visuals.TrailEnabled, function(value)
@@ -1815,7 +1848,7 @@ getgenv().Yuth.HitSounds = {
 }
 
 -- Add Hit Sound settings to the Silent Aim section
-SilentAimSection:AddToggle("Enable Hit Sounds", getgenv().Yuth.HitSounds.Enabled, function(value)
+SilentAimSection:AddToggle("Hit Sounds", getgenv().Yuth.HitSounds.Enabled, function(value)
     getgenv().Yuth.HitSounds.Enabled = value
     updateHitSound()
 end)
@@ -1962,7 +1995,7 @@ userInputService.InputEnded:Connect(onMouseRelease)
 
 spawn(continuouslyActivateHeldItem)
 
-PlayerSection:AddToggle("Enable Rapid Fire", getgenv().rapidfire, function(value)
+PlayerSection:AddToggle("Faster shooting", getgenv().rapidfire, function(value)
     getgenv().rapidfire = value
 end)
 
@@ -2128,7 +2161,7 @@ getgenv().Crosshair = {
     Gap = 4,
     Length = 100,
     Thickness = 2.5,
-    RotationSpeed = 25,
+    RotationSpeed = 50,
     Position = "Mouse",
     ShowText = false,
     TextColor = Color3.fromRGB(255, 255, 255)
@@ -2451,6 +2484,24 @@ Highlight.Enabled = false
 Highlight.FillColor = Color3.fromRGB(255, 255, 255)
 Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 
+getgenv().ForceHit = {
+    Enabled = false,       -- Włącz/Wyłącz
+    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
+    Tracer = false,        -- Włącz/Wyłącz Tracer
+    Notifications = false, -- Włącz/Wyłącz Powiadomienia
+    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
+}
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Target = nil
+local Tracer = Drawing.new("Line")
+local Highlight = Instance.new("Highlight")
+Highlight.Parent = game.CoreGui
+Highlight.Enabled = false
+Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
 -- 📌 Ustawienia Tracera
 Tracer.Thickness = 2
 Tracer.Color = Color3.fromRGB(255, 255, 255)
@@ -2478,16 +2529,14 @@ function GetClosestToMouse()
     local ClosestDistance = math.huge
 
     for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local Head = player.Character:FindFirstChild("Head")
-            if Head then
-                local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
-                if OnScreen then
-                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
-                    if Distance < ClosestDistance then
-                        ClosestDistance = Distance
-                        ClosestPlayer = player
-                    end
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local Head = player.Character.Head
+            local HeadScreenPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+            if OnScreen then
+                local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadScreenPos.X, HeadScreenPos.Y)).Magnitude
+                if Distance < ClosestDistance then
+                    ClosestDistance = Distance
+                    ClosestPlayer = player
                 end
             end
         end
@@ -2620,6 +2669,27 @@ ForceHitSection:AddToggle("Notifications", getgenv().ForceHit.Notifications, fun
     getgenv().ForceHit.Notifications = value
 end)
 
+getgenv().AntiSit = {
+    Enabled = false -- Włącz/Wyłącz Anti-Sit
+}
+
+local function AntiSit()
+    if not getgenv().AntiSit.Enabled then return end
+
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        local Humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if Humanoid.Sit then
+            Humanoid.Sit = false
+        end
+    end
+end
+
+RunService.Stepped:Connect(AntiSit)
+
+PlayerSection:AddToggle("Anti Sit", getgenv().AntiSit.Enabled, function(value)
+    getgenv().AntiSit.Enabled = value
+end)
+
 -- 🔹 Funkcja do obliczania prędkości (resolver)
 local LastPositions = {}
 
@@ -2710,34 +2780,3 @@ grmt.__index = newcclosure(function(self, v)
     end
     return backupindex(self, v)
 end)
-
--- 🔹 AutoPrediction dla pingu
-local autoPredictionConnection
-local function handleAutoPrediction()
-    if autoPredictionConnection then
-        autoPredictionConnection:Disconnect()
-    end
-    if getgenv().Yuth.Silent.AutoPrediction then
-        autoPredictionConnection = RunService.Heartbeat:Connect(function()
-            local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-            local pingValue = string.split(ping, " ")[1]
-            local pingNumber = tonumber(pingValue)
-
-            if pingNumber < 30 then
-                getgenv().Yuth.Silent.Prediction = 0.05127486215
-            elseif pingNumber < 40 then
-                getgenv().Yuth.Silent.Prediction = 0.0376325238512
-            elseif pingNumber < 50 then
-                getgenv().Yuth.Silent.Prediction = 0.0612784671288532
-            elseif pingNumber < 60 then
-                getgenv().Yuth.Silent.Prediction = 0.04127462178465
-            elseif pingNumber < 70 then
-                getgenv().Yuth.Silent.Prediction = 0.0367345124
-            else
-                getgenv().Yuth.Silent.Prediction = 0.04712647126835
-            end
-        end)
-    end
-end
-
-getgenv().Yuth.Silent.AutoPredictionChanged = handleAutoPrediction
