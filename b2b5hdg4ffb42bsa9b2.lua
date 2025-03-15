@@ -2,6 +2,10 @@ local enabled = true
 
 if not enabled then return end
 
+if game.PlaceId ~= 9825515356 then
+    game.Players.LocalPlayer:Kick("unsupported game detected.")  -- Wyrzucenie gracza z gry
+    return  -- Kończy skrypt, aby nie ładować GUI
+end
 getgenv().Speed = true
 getgenv().FakeMacro = true
 	local sound = Instance.new("Sound")
