@@ -3,8 +3,8 @@ local enabled = true
 if not enabled then return end
 
 if game.PlaceId ~= 9825515356 then
-    game.Players.LocalPlayer:Kick("unsupported game detected.")  -- Wyrzucenie gracza z gry
-    return  -- Kończy skrypt, aby nie ładować GUI
+    game.Players.LocalPlayer:Kick("unsupported game detected.")
+    return
 end
 getgenv().Speed = true
 getgenv().FakeMacro = true
@@ -16,19 +16,19 @@ getgenv().FakeMacro = true
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/zvxvaz/PiterNaGitHub/refs/heads/main/gui.lua"))()
 local Window = Library:CreateWindow("swindle.cc (beta)", Vector2.new(492, 598), Enum.KeyCode.RightControl)
 local AimingTab = Window:CreateTab("Aimbot")
-local MovementTab = Window:CreateTab("Movement")  -- Nowa zakładka "Movement"
+local MovementTab = Window:CreateTab("Movement")
 local Visuals = Window:CreateTab("Visuals")
 local Misc = Window:CreateTab("Misc")
 
 
-local AimbotSection = AimingTab:CreateSector("Camlock", "left")  -- Sekcja w "Movement"
-local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")  -- Sekcja Silent Aim
+local AimbotSection = AimingTab:CreateSector("Camlock", "left")
+local SilentAimSection = AimingTab:CreateSector("Silent Aim", "right")
 local TargetStrafeSection = AimingTab:CreateSector("TargetStrafe", "right")
 local FlightSection = MovementTab:CreateSector("Flight", "right")
 local CFrameSection = MovementTab:CreateSector("CFrame", "Left")
 local MacroSection = MovementTab:CreateSector("Macro", "Left")
 local BunnyHopSection = MovementTab:CreateSector("BunnyHop", "Right")
-local AntilockSection = AimingTab:CreateSector("Antilock", "left")  -- Sekcja Silent Aim
+local AntilockSection = AimingTab:CreateSector("Antilock", "left")
 local VisualsSection = Visuals:CreateSector("ESP", "Left")
 local TexturesSection = Visuals:CreateSector("Texture Changer", "Right")
 local TrailSection = Visuals:CreateSector("Self Visuals", "left")
@@ -43,7 +43,6 @@ local AvatarSection = Misc:CreateSector("Avatar Stuff", "Right")
 local StrechScreenSection = Misc:CreateSector("Strech Screen", "Right")
 local ForceHitSection = AimingTab:CreateSector("Force Hit", "Right")
 
--- Load services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -52,13 +51,11 @@ local StarterGui = game:GetService("StarterGui")
 
 
 
--- Variables
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 local targetPlayer = nil
 
--- Ustawienia aimbota
 getgenv().Aimbot = {
     Enabled = false,
     Keybind = "C",
@@ -66,53 +63,45 @@ getgenv().Aimbot = {
     Smoothness = 1,
     Prediction = 0,
     MaxDistance = 5000,
-    JumpOffset = 0,  -- Jump offset
-    FallOffset = 0,  -- Fall offset
-    WallCheck = false,  -- WallCheck
-    KnockCheck = false  -- KnockCheck
+    JumpOffset = 0,
+    FallOffset = 0,
+    WallCheck = false,
+    KnockCheck = false
 }
 
--- Ustawienia ruchu
-getgenv().Movement = {
-    Speed = 7500,  -- Domyślna prędkość ruchu
-    JumpPower = 5000  -- Domyślna moc skoku
-}
-
--- Ustawienia Silent Aim
 getgenv().Yuth = {
     Silent = {
         Enabled = false,
         Keybind = "C",
         Prediction = 0,
         AutoPrediction = false,
-        Part = "HumanoidRootPart", -- Change this to the part you want to target
-        WallCheck = false,  -- WallCheck
-        KnockCheck = false  -- KnockCheck
+        Part = "HumanoidRootPart",
+        WallCheck = false,
+        KnockCheck = false
     },
 
     resolver = true,
     
     FOV = {
-        Radius = 200,     -- Adjust the radius of the FOV circle
-        Visible = false,   -- Ustawienia widoczności FOV circle
+        Radius = 200,
+        Visible = false,
     },
     
         Highlight = {
         Enabled = false,
-        Color = Color3.fromRGB(255, 255, 255), -- Czerwony
+        Color = Color3.fromRGB(255, 255, 255),
         Transparency = 0.5
     }
 }
 
 getgenv().TargetStrafe = {
-    Enabled = false, -- Jeśli false, strafe nie działa po injekcji
+    Enabled = false,
     speed = 20,
     radius = 10,
     heightOffset = 5,
     Key = "F",
 }
 
--- Load services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -121,14 +110,12 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- Variables
 local target = nil
 local angle = 0
 local originalPosition = nil
 local humanoid = nil
 local isStrafingEnabled = false
 
--- Function to find the closest target
 local function GetClosestTarget()
     local closestDistance = 500
     local closestPlayer = nil
@@ -151,11 +138,10 @@ local function GetClosestTarget()
     return closestPlayer
 end
 
--- Toggle TargetStrafe
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode.Name == getgenv().TargetStrafe.Key then  
-        if getgenv().TargetStrafe.Enabled then  -- Sprawdzanie, czy funkcja jest włączona
+        if getgenv().TargetStrafe.Enabled then
             isStrafingEnabled = not isStrafingEnabled
             if isStrafingEnabled then
                 target = GetClosestTarget()
@@ -163,7 +149,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
                     originalPosition = LocalPlayer.Character.HumanoidRootPart.Position
                     humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
                 else
-                    isStrafingEnabled = false -- Jeśli nie ma celu, nie włączaj strafingu
+                    isStrafingEnabled = false
                 end
             else
                 target = nil
@@ -173,7 +159,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Spinning logic
 RunService.RenderStepped:Connect(function()
     if isStrafingEnabled and getgenv().TargetStrafe.Enabled and target and target.Character then
         local targetPosition = target.Character.HumanoidRootPart.Position
@@ -188,7 +173,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Allow falling if disabled
 RunService.Heartbeat:Connect(function()
     if not isStrafingEnabled and humanoid then
         if humanoid:GetState() == Enum.HumanoidStateType.Physics then
@@ -197,7 +181,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Pobranie usług Roblox
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -206,10 +189,8 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- Zmienna do przechowywania aktualnego celu Silent Aim
 local SilentAimTarget = nil
 
--- Funkcja do sprawdzania, czy nie ma przeszkód między lokalnym graczem a celem (WallCheck)
 local function isTargetVisible(target)
     local origin = Camera.CFrame.Position
     local direction = (target.Position - origin).Unit * (target.Position - origin).Magnitude
@@ -219,13 +200,11 @@ local function isTargetVisible(target)
     return hit == nil or hit:IsDescendantOf(target.Parent)
 end
 
--- Funkcja do sprawdzania, czy cel nie jest powalony (KnockCheck)
 local function isTargetKnocked(target)
     local humanoid = target.Parent:FindFirstChildOfClass("Humanoid")
     return humanoid and humanoid.Health > 0
 end
 
--- Funkcja wyszukująca najbliższego przeciwnika
 local function GetClosestTarget()
     local ClosestDistance = getgenv().Aimbot.MaxDistance
     local ClosestPlayer = nil
@@ -249,7 +228,6 @@ local function GetClosestTarget()
     return ClosestPlayer
 end
 
--- Obsługa włączania aimbota przyciskiem
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode[getgenv().Aimbot.Keybind] then
@@ -257,38 +235,32 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Główna pętla aimbota
 RunService.RenderStepped:Connect(function()
     if getgenv().Aimbot.Enabled and Target and Target.Character then
         local HitPart = Target.Character:FindFirstChild(getgenv().Aimbot.Hitpart)
         if HitPart then
             local PredictedPos = HitPart.Position + HitPart.Velocity * getgenv().Aimbot.Prediction
             
-            -- Track jump/fall offset based on vertical speed (Y axis velocity)
             local humanoid = Target.Character:FindFirstChild("Humanoid")
             if humanoid then
-                -- Get humanoid state for jump/fall detection
                 local isJumping = humanoid:GetState() == Enum.HumanoidStateType.Jumping
                 local isFalling = humanoid:GetState() == Enum.HumanoidStateType.Freefall
 
-                -- Apply jump offset if the player is jumping
                 if isJumping then
                     PredictedPos = PredictedPos + Vector3.new(0, getgenv().Aimbot.JumpOffset, 0)
-                -- Apply fall offset if the player is falling
                 elseif isFalling then
                     PredictedPos = PredictedPos + Vector3.new(0, getgenv().Aimbot.FallOffset, 0)
                 end
             end
             
             local TargetCFrame = CFrame.new(Camera.CFrame.Position, PredictedPos)
-            -- Apply smoothness with Lerp
             Camera.CFrame = Camera.CFrame:Lerp(TargetCFrame, math.clamp(getgenv().Aimbot.Smoothness, 0, 1))
         end
     end
 end)
 
 getgenv().Flight = {
-    Enabled = false, -- Flight nie działa po injekcji, dopóki nie zostanie aktywowany w GUI
+    Enabled = false,
     Speed = 500,
     Keybind = "F"
 }
@@ -299,7 +271,6 @@ local player = game.Players.LocalPlayer
 
 local runServiceConnection
 
--- Funkcja aktualizująca prędkość postaci podczas lotu
 local function onUpdate()
     if not getgenv().Flight.Enabled then return end
     
@@ -328,7 +299,6 @@ local function onUpdate()
     hrp.Velocity = moveDirection
 end
 
--- Funkcja uruchamiająca lot po załadowaniu postaci
 local function setupCharacter(character)
     if runServiceConnection then
         runServiceConnection:Disconnect()
@@ -344,9 +314,8 @@ local function setupCharacter(character)
     end
 end
 
--- Funkcja zmieniająca stan lotu
 local function toggleFlight()
-    if not getgenv().Flight.Enabled then return end -- Flight działa tylko, jeśli Enabled = true
+    if not getgenv().Flight.Enabled then return end
 
     if runServiceConnection then
         runServiceConnection:Disconnect()
@@ -365,7 +334,6 @@ local function toggleFlight()
     end
 end
 
--- Funkcja włączająca Flight przez GUI
 getgenv().Flight.Enable = function()
     if not getgenv().Flight.Enabled then
         getgenv().Flight.Enabled = true
@@ -375,7 +343,6 @@ getgenv().Flight.Enable = function()
     end
 end
 
--- Funkcja wyłączająca Flight przez GUI
 getgenv().Flight.Disable = function()
     if getgenv().Flight.Enabled then
         getgenv().Flight.Enabled = false
@@ -395,7 +362,6 @@ getgenv().Flight.Disable = function()
     end
 end
 
--- Funkcja reagująca na naciśnięcie klawisza
 local function onToggleKeyPressed(input, gameProcessedEvent)
     if not gameProcessedEvent and getgenv().Flight.Enabled then
         if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode[getgenv().Flight.Keybind] then
@@ -404,16 +370,13 @@ local function onToggleKeyPressed(input, gameProcessedEvent)
     end
 end
 
--- Połączenia dla naciśnięcia klawisza i załadowania postaci
 userInputService.InputBegan:Connect(onToggleKeyPressed)
 player.CharacterAdded:Connect(setupCharacter)
 
--- Inicjalizujemy, jeśli postać jest już załadowana
 if player.Character then
     setupCharacter(player.Character)
 end
 
--- Ustawienia dla prędkości i klawisza
 getgenv().Flight.SetSpeed = function(speed)
     getgenv().Flight.Speed = speed
 end
@@ -450,8 +413,6 @@ spawn(function()
 	veldot.Color = Color3.fromRGB(0, 0, 189)
 end)
 
--- Velocity Visualizer
-
 game:GetService("RunService").Heartbeat:Connect(function()
 	local pos, onscreen = workspace.CurrentCamera:WorldToViewportPoint(
 		game:GetService("Players").LocalPlayer.Character["HumanoidRootPart"].CFrame.Position +
@@ -465,8 +426,6 @@ game:GetService("RunService").Heartbeat:Connect(function()
 		veldot.Visible = false
 	end
 end)
-
--- Anti-Aim Functions
 
 game:GetService("RunService").Heartbeat:Connect(function()
 	local hrp, hum = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, game:GetService("Players").LocalPlayer.Character.Humanoid
@@ -721,12 +680,12 @@ TexturesSection:AddColorpicker("Textures Color", Color3.fromRGB(255, 255, 255), 
 end)
 
 getgenv().Fog = {
-    Enabled = false, -- Włącz lub wyłącz mgłę
-    NoFog = false, -- Całkowite usunięcie mgły
-    Color = Color3.fromRGB(135, 206, 235), -- Domyślny kolor mgły (błękitny)
-    FogStart = 200, -- Odległość rozpoczęcia mgły
-    FogEnd = 200, -- Odległość zakończenia mgły
-    RainBow = false, -- Tryb tęczy
+    Enabled = false,
+    NoFog = false,
+    Color = Color3.fromRGB(135, 206, 235),
+    FogStart = 200,
+    FogEnd = 200,
+    RainBow = false,
     PreviousColor = Color3.fromRGB(135, 206, 235),
     OriginalFogStart = nil,
     OriginalFogEnd = nil,
@@ -736,75 +695,69 @@ getgenv().Fog = {
 local Lighting = game:GetService("Lighting")
 local runService = game:GetService("RunService")
 
--- Zapisz oryginalne wartości mgły
 if getgenv().Fog.OriginalFogStart == nil then
     getgenv().Fog.OriginalFogStart = Lighting.FogStart
     getgenv().Fog.OriginalFogEnd = Lighting.FogEnd
     getgenv().Fog.OriginalFogColor = Lighting.FogColor
 end
 
--- Aktualizacja mgły
 local function UpdateFog()
     if getgenv().Fog.NoFog then
-        Lighting.FogEnd = 1e6 -- Całkowicie usuwa mgłę
+        Lighting.FogEnd = 1e6
         Lighting.FogStart = 1e6
     elseif getgenv().Fog.Enabled then
         Lighting.FogColor = getgenv().Fog.Color
         Lighting.FogStart = getgenv().Fog.FogStart
         Lighting.FogEnd = getgenv().Fog.FogEnd
     else
-        -- Przywróć oryginalne wartości mgły
         Lighting.FogColor = getgenv().Fog.OriginalFogColor
         Lighting.FogStart = getgenv().Fog.OriginalFogStart
         Lighting.FogEnd = getgenv().Fog.OriginalFogEnd
     end
 end
 
--- Dynamiczny tryb tęczy
 local function StartRainbowMode()
     while getgenv().Fog.RainBow do
-        for hue = 0, 360, 2 do -- Przechodzi przez kolory tęczy
+        for hue = 0, 360, 2 do
             if not getgenv().Fog.RainBow then
-                getgenv().Fog.Color = getgenv().Fog.PreviousColor -- Przywróć poprzedni kolor
+                getgenv().Fog.Color = getgenv().Fog.PreviousColor
                 UpdateFog()
                 return
             end
             getgenv().Fog.Color = Color3.fromHSV(hue / 360, 1, 1)
             UpdateFog()
-            task.wait(0.1) -- Prędkość zmiany koloru
+            task.wait(0.1)
         end
     end
 end
 
--- Monitoruj zmianę Rainbow Mode
 runService.Heartbeat:Connect(function()
     if getgenv().Fog.RainBow then
         StartRainbowMode()
     end
 end)
 
--- Wywołaj aktualizację na starcie
 UpdateFog()
 
 
 FogSection:AddToggle("Enable Fog", getgenv().Fog.Enabled, function(value)
     getgenv().Fog.Enabled = value
-    UpdateFog() -- Aktualizacja mgły po zmianie wartości
+    UpdateFog()
 end)
 
 FogSection:AddColorpicker("Fog Color", Color3.fromRGB(255, 255, 255), function(color)
     getgenv().Fog.Color = color
-    UpdateFog() -- Aktualizacja mgły po zmianie koloru
+    UpdateFog()
 end)
 
 FogSection:AddSlider("Fog Start", 0, 10000, getgenv().Fog.FogStart, 100, function(value)
     getgenv().Fog.FogStart = value
-    UpdateFog() -- Aktualizacja mgły po zmianie wartości
+    UpdateFog()
 end)
 
 FogSection:AddSlider("Fog End", 0, 10000, getgenv().Fog.FogEnd, 100, function(value)
     getgenv().Fog.FogEnd = value
-    UpdateFog() -- Aktualizacja mgły po zmianie wartości
+    UpdateFog() 
 end)
 
 getgenv().Watermark = {
@@ -813,74 +766,65 @@ getgenv().Watermark = {
     
 }
 
--- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local MarketplaceService = game:GetService("MarketplaceService")
 
--- Local Player
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.Name
 local GameName = "Unknown Game"
 
--- Pobieranie nazwy gry (obsługa błędów)
 pcall(function()
     GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
 end)
 
--- Tworzenie UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.Name = "SwindleWatermark"
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 300, 0, 20) -- Początkowa szerokość
-Frame.Position = UDim2.new(0, 10, 0, 10) -- Lewy górny róg
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Czarne tło
+Frame.Size = UDim2.new(0, 300, 0, 20)
+Frame.Position = UDim2.new(0, 10, 0, 10)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BorderSizePixel = 0
 Frame.BackgroundTransparency = 0.2
 Frame.Parent = ScreenGui
 
-local UIStroke = Instance.new("UIStroke") -- Obrys
+local UIStroke = Instance.new("UIStroke")
 UIStroke.Parent = Frame
 UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(0, 0, 189) -- Niebieski obrys
+UIStroke.Color = Color3.fromRGB(0, 0, 189)
 
 local TextLabel = Instance.new("TextLabel")
 TextLabel.Size = UDim2.new(1, -10, 1, 0)
 TextLabel.Position = UDim2.new(0, 5, 0, 0)
 TextLabel.BackgroundTransparency = 1
-TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Biały tekst
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextLabel.Font = Enum.Font.GothamBold
-TextLabel.TextSize = 12 -- Mniejsza czcionka
+TextLabel.TextSize = 12
 TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 TextLabel.Text = "Loading..."
 TextLabel.Parent = Frame
 
--- Zmienna do liczenia FPS
 local frameCount = 0
 local lastTime = tick()
 local fps = 0
-local ping = "0ms" -- Domyślny ping
+local ping = "0ms"
 
--- Funkcja do aktualizacji watermarka
 local function UpdateWatermark()
-    local lastUpdateTime = tick() -- Czas ostatniej aktualizacji
-    local fpsUpdateInterval = 1 -- Aktualizacja co 1 sekundę
+    local lastUpdateTime = tick()
+    local fpsUpdateInterval = 1
 
-    -- Obliczanie FPS i Ping w czasie rzeczywistym
     RunService.Heartbeat:Connect(function()
         frameCount = frameCount + 1
         local currentTime = tick()
 
-        -- Obliczanie FPS co sekundę
         if currentTime - lastTime >= 1 then
             fps = frameCount
             frameCount = 0
             lastTime = currentTime
 
-            -- Pobranie pingu co sekundę
             local success, result = pcall(function()
                 return Stats.Network.ServerStatsItem["Data Ping"]:GetValueString():match("%d+")
             end)
@@ -891,13 +835,11 @@ local function UpdateWatermark()
             end
         end
 
-        -- Zaktualizowanie tekstu watermarka
         if getgenv().Watermark.Enabled then
             TextLabel.Text = string.format("Swindle.cc | Game: %s | Name: %s | Ping: %s | FPS: %d", GameName, PlayerName, ping, fps)
 
-            -- Dynamiczne dopasowanie szerokości Frame do długości tekstu
-            local textWidth = TextLabel.TextBounds.X + 10  -- +10 na margines
-            Frame.Size = UDim2.new(0, textWidth, 0, 20)  -- Zmieniamy szerokość Frame na dynamiczną
+            local textWidth = TextLabel.TextBounds.X + 10
+            Frame.Size = UDim2.new(0, textWidth, 0, 20)
 
             ScreenGui.Enabled = true
         else
@@ -906,7 +848,6 @@ local function UpdateWatermark()
     end)
 end
 
--- Uruchomienie funkcji aktualizacji watermarka
 task.spawn(UpdateWatermark)
 
 WatermarkSection:AddToggle("Enable Watermark", getgenv().Watermark.Enabled, function(value)
@@ -946,7 +887,6 @@ local function sendTrashTalk()
     if getgenv().TrashTalk.Enabled and TextChatService then
         local message = trashTalkMessages[math.random(1, #trashTalkMessages)]
         
-        -- Pobierz domyślny kanał gracza i wyślij wiadomość
         local chatChannel = TextChatService.TextChannels.RBXGeneral
         if chatChannel then
             chatChannel:SendAsync(message)
@@ -973,16 +913,15 @@ end)
 
 getgenv().Macro = {
     Enabled = false,
-    Keybind = "X",  -- Teraz przechowujemy keybind jako zwykły tekst
+    Keybind = "X",
 }
 
 local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
 local SpeedGlitch = false
 
--- Obsługa klawisza
 Mouse.KeyDown:Connect(function(Key)
-    if Key:upper() == getgenv().Macro.Keybind then  -- Porównanie z uwzględnieniem wielkości liter
+    if Key:upper() == getgenv().Macro.Keybind then
         SpeedGlitch = not SpeedGlitch
         if SpeedGlitch == true then
             repeat
@@ -1000,29 +939,25 @@ Mouse.KeyDown:Connect(function(Key)
     end
 end)
 
--- Dodanie toggle do GUI
 MacroSection:AddToggle("Enable Macro", getgenv().Macro.Enabled, function(value)
     getgenv().Macro.Enabled = value
 end)
 
--- Dodanie textboxa do zmiany Keybind w GUI
 MacroSection:AddTextbox("Macro Keybind", getgenv().Macro.Keybind, function(value)
-    getgenv().Macro.Keybind = value:upper()  -- Upewniamy się, że keybind jest przechowywany w wersji z wielkimi literami
+    getgenv().Macro.Keybind = value:upper()
 end)
 
 getgenv().Jump = {
-    Enabled = false -- Możesz zmieniać na false, jeśli chcesz wyłączyć
+    Enabled = false
 }
 
 if not game:IsLoaded() then 
     game.Loaded:Wait()
 end
 
--- Zmienne
 local IsA = game.IsA
 local newindex = nil 
 
--- Główne hookowanie
 newindex = hookmetamethod(game, "__newindex", function(self, Index, Value)
     if getgenv().Jump.Enabled and not checkcaller() and IsA(self, "Humanoid") and Index == "JumpPower" then 
         return
@@ -1035,13 +970,10 @@ PlayerSection:AddToggle("No jump cooldown", getgenv().Jump.Enabled, function(val
     getgenv().Jump.Enabled = value
 end)
 
--- Inicjalizacja zmiennej NoSlow
--- Inicjalizacja zmiennej NoSlow
 getgenv().NoSlow = {
-    Enabled = false  -- Możesz zmienić na 'true' w GUI, aby włączyć
+    Enabled = false
 }
 
--- Funkcja hookująca
 local mt = getrawmetatable(game)
 local backup
 
@@ -1055,14 +987,13 @@ backup = hookfunction(mt.__newindex, newcclosure(function(self, key, value)
 end))
 
 getgenv().AutoStomp = {
-    Enabled = false  -- Zmieniaj na 'true', aby włączyć AutoStomp
+    Enabled = false
 }
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RATE_PER_SECOND = 10
 
--- Główna funkcjonalność AutoStomp
 RunService.Stepped:Connect(function(time, step)
     if getgenv().AutoStomp.Enabled then
         ReplicatedStorage.MainEvent:FireServer("Stomp")
@@ -1070,194 +1001,158 @@ RunService.Stepped:Connect(function(time, step)
 end)
 
 PlayerSection:AddToggle("Auto stomp", getgenv().AutoStomp.Enabled, function(value)
-    -- Aktualizowanie stanu zmiennej globalnej
     getgenv().AutoStomp.Enabled = value
 end)
 
--- Dodanie toggle w GUI
 PlayerSection:AddToggle("No slow", getgenv().NoSlow.Enabled, function(value)
-    -- Aktualizowanie stanu zmiennej globalnej
     getgenv().NoSlow.Enabled = value
 end)
 
--- Zmienna do kontrolowania włączenia/wyłączenia tańca
 getgenv().Floss = {
-    Enabled = false  -- Zmieniaj na 'false' aby wyłączyć
+    Enabled = false
 }
 
--- Ustawienia animacji
-local danceAnimationId = "http://www.roblox.com/asset/?id=10714340543"  -- ID animacji Floss
+local danceAnimationId = "http://www.roblox.com/asset/?id=10714340543"
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local animationTrack
 
--- Funkcja do uruchamiania animacji
 local function playDanceAnimation()
     if getgenv().Floss.Enabled then
-        -- Tworzymy instancję animacji
         local danceAnimation = Instance.new("Animation")
         danceAnimation.AnimationId = danceAnimationId
 
-        -- Odtwarzamy animację na humanoidzie
         local animator = humanoid:FindFirstChildOfClass("Animator")
         if animator then
             animationTrack = animator:LoadAnimation(danceAnimation)
         else
             animationTrack = humanoid:LoadAnimation(danceAnimation)
         end
-
-        -- Uruchamiamy animację w pętli
         animationTrack:Play()
         animationTrack.Looped = true
     end
 end
 
--- Funkcja do zatrzymywania animacji
 local function stopDanceAnimation()
     if animationTrack and animationTrack.IsPlaying then
         animationTrack:Stop()
     end
 end
 
--- Uruchomienie tańca (jeśli Floss jest włączony)
 if getgenv().Floss.Enabled then
     playDanceAnimation()
 end
 
--- Jeśli postać się zmieni, zacznij ponownie tańczyć
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
 
-    -- Jeśli Floss jest włączony, zacznij tańczyć
     if getgenv().Floss.Enabled then
         playDanceAnimation()
     end
 end)
 
--- Nasłuchuj zmiany wartości Floss.Enabled
 game:GetService("RunService").Heartbeat:Connect(function()
     if getgenv().Floss.Enabled then
-        -- Jeśli Floss jest włączony, uruchom animację
         if not animationTrack or not animationTrack.IsPlaying then
             playDanceAnimation()
         end
     else
-        -- Jeśli Floss jest wyłączony, zatrzymaj animację
         stopDanceAnimation()
     end
 end)
 
 PlayerSection:AddToggle("Floss dance", getgenv().Floss.Enabled, function(value)
-    -- Aktualizowanie stanu zmiennej globalnej
     getgenv().Floss.Enabled = value
 end)
 
--- Globalne przechowywanie ustawień
 getgenv().NoRecoil = {
     Enabled = false
 }
 
--- Funkcja sprawdzająca, czy skrypt to "Framework"
 function isframework(scriptInstance)
     return tostring(scriptInstance) == "Framework"
 end
 
--- Funkcja sprawdzająca argumenty
 function checkArgs(instance, index)
     return tostring(instance):lower():find("camera") and tostring(index) == "CFrame"
 end
 
--- Hookowanie funkcji __newindex
 local newindex
 newindex = hookmetamethod(game, "__newindex", function(self, index, value)
-    if not getgenv().NoRecoil.Enabled then  -- Jeśli NoRecoil jest wyłączone, nie rób nic
+    if not getgenv().NoRecoil.Enabled then
         return newindex(self, index, value)
     end
 
     local callingScr = getcallingscript()
     if isframework(callingScr) and checkArgs(self, index) then
-        return  -- Blokuje zmianę CFrame kamery, jeśli NoRecoil jest włączone
+        return 
     end
 
     return newindex(self, index, value)
 end)
 
--- Dodanie przełącznika do GUI w sekcji "PlayerSection"
 PlayerSection:AddToggle("No Recoil", getgenv().NoRecoil.Enabled, function(value)
     getgenv().NoRecoil.Enabled = value
 end)
 
 getgenv().Light = {
-    Enabled = false,  -- Włącz lub wyłącz ciemność
+    Enabled = false,
 }
 
--- Skrypt robiący ciemno w Roblox bez użycia Ambient, z manipulowaniem innymi ustawieniami
 local lighting = game:GetService("Lighting")
 
--- Funkcja aktualizująca świat
 local function updateWorldLighting()
     if getgenv().Light.Enabled then
-        lighting.Brightness = 0  -- Zmniejszenie ogólnej jasności
-        lighting.ExposureCompensation = -2  -- Zmniejsza ekspozycję (ciemniejsze)
+        lighting.Brightness = 0
+        lighting.ExposureCompensation = -2
         lighting.GlobalShadows = true
     else
-        lighting.Brightness = 2  -- Standardowa jasność
-        lighting.ExposureCompensation = 0  -- Domyślna ekspozycja
-        lighting.GlobalShadows = true  -- Włączanie globalnych cieni
+        lighting.Brightness = 2
+        lighting.ExposureCompensation = 0
+        lighting.GlobalShadows = true
     end
 end
 
--- Ustawienia początkowe
 updateWorldLighting()
 
 WorldSection:AddToggle("World Overlay", getgenv().Light.Enabled, function(value)
     getgenv().Light.Enabled = value
-    updateWorldLighting()  -- Zaktualizowanie światła po zmianie w GUI
+    updateWorldLighting()
 end)
-
--- Zmienna globalna, która trzyma ustawienia
--- Zmienna globalna, która trzyma ustawienia
 
 getgenv().Resolution = {
     [".gg/scripters"] = 1
 }
 
-getgenv().Enabled = false -- Możesz ustawić na false, aby wyłączyć działanie skryptu
+getgenv().Enabled = false
 
 local Camera = workspace.CurrentCamera
-local DefaultCFrame = Camera.CFrame -- Zapisanie domyślnej wartości CFrame
+local DefaultCFrame = Camera.CFrame
 local RunService = game:GetService("RunService")
 
--- Funkcja do aktualizacji kamery
 local function updateCamera()
     if getgenv().Enabled then
         Camera.CFrame = Camera.CFrame * CFrame.new(0, 0, 0, 1, 0, 0, 0, getgenv().Resolution[".gg/scripters"], 0, 0, 0, 1)
     end
 end
 
--- Odłączamy pętlę RenderStepped, jeśli Enabled jest false
 local connection
 connection = RunService.RenderStepped:Connect(
     function()
-        -- Jeśli Enabled jest false, skrypt w ogóle nie zmienia kamery
         if getgenv().Enabled then
-            updateCamera() -- Tylko wtedy, gdy Enabled jest true, zmieniamy kamerę
+            updateCamera()
         else
-            -- Kamera nie jest zmieniana, nic się nie dzieje
-            -- To zapewnia, że skrypt nie zmienia stanu kamery, gdy Enabled jest false
         end
     end
 )
 
 getgenv().gg_scripters = "Aori0001"
 
--- GUI kontrolki
 StrechScreenSection:AddToggle("Enable", getgenv().Enabled, function(value)
-    getgenv().Enabled = value -- Aktualizowanie stanu włączania/wyłączania
-    -- Odświeżenie kamery po zmianie, ale tylko wtedy, gdy Enabled jest true
+    getgenv().Enabled = value
     if getgenv().Enabled then
         updateCamera() 
     end
@@ -1278,14 +1173,13 @@ getgenv().Configurations = {
         World = {
             ClockTime = {
                 Enabled = false,
-                Value = 12, -- Możesz zmieniać wartość od 1 do 24
-                PreviousValue = Lighting.ClockTime -- Przechowuje poprzedni czas
+                Value = 12,
+                PreviousValue = Lighting.ClockTime
             }
         }
     }
 }
 
--- Logika aktualizująca czas w grze
 local function ApplyClockTime()
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if config.Enabled then
@@ -1293,7 +1187,6 @@ local function ApplyClockTime()
     end
 end
 
--- Aktualizacja czasu w pętli
 local function MonitorClockTime()
     while task.wait(0) do
         ApplyClockTime()
@@ -1305,9 +1198,9 @@ task.spawn(MonitorClockTime)
 WorldSection:AddToggle("Time Changer", getgenv().Configurations.Visuals.World.ClockTime.Enabled, function(value)
     local config = getgenv().Configurations.Visuals.World.ClockTime
     if value then
-        config.PreviousValue = Lighting.ClockTime -- Zapisuje poprzedni czas tylko raz, gdy Enabled przechodzi na true
+        config.PreviousValue = Lighting.ClockTime
     else
-        Lighting.ClockTime = config.PreviousValue -- Przywraca poprzedni czas
+        Lighting.ClockTime = config.PreviousValue
     end
     config.Enabled = value
 end)
@@ -1316,12 +1209,10 @@ WorldSection:AddTextbox("Time", getgenv().Configurations.Visuals.World.ClockTime
     getgenv().Configurations.Visuals.World.ClockTime.Value = tonumber(value) or 12
 end)
 
--- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
 if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
 
--- Sprawdzenie, czy obiekt `SkyboxSettings` jest poprawnie zainicjowany
 if not getgenv().SkyboxSettings then
     getgenv().SkyboxSettings = {}
 end
@@ -1338,7 +1229,6 @@ getgenv().SkyboxSettings = {
     Orange = {Enabled = false, Assets = {SkyboxBk = "http://www.roblox.com/asset/?id=150939022", SkyboxDn = "http://www.roblox.com/asset/?id=150939038", SkyboxFt = "http://www.roblox.com/asset/?id=150939047", SkyboxLf = "http://www.roblox.com/asset/?id=150939056", SkyboxRt = "http://www.roblox.com/asset/?id=150939063", SkyboxUp = "http://www.roblox.com/asset/?id=150939082"}},
 }
 
--- Pobranie serwisu Lighting i zapisanie oryginalnego skyboxa
 local lighting = game:GetService("Lighting")
 local originalSkybox = nil
 for _, child in pairs(lighting:GetChildren()) do
@@ -1348,9 +1238,7 @@ for _, child in pairs(lighting:GetChildren()) do
     end
 end
 
--- Funkcja do zmiany skyboxa
 local function changeSkybox()
-    -- Usuń obecny skybox
     for _, child in pairs(lighting:GetChildren()) do
         if child:IsA("Sky") then
             child:Destroy()
@@ -1373,14 +1261,13 @@ local function changeSkybox()
     end
 end
 
--- Monitorowanie zmian w Enabled i aktualizacja skyboxa
 task.spawn(function()
     local lastState = {}
     for skybox, settings in pairs(getgenv().SkyboxSettings) do
         lastState[skybox] = settings.Enabled
     end
 
-    while task.wait(1) do -- Sprawdza co sekundę
+    while task.wait(1) do
         for skybox, settings in pairs(getgenv().SkyboxSettings) do
             if settings.Enabled ~= lastState[skybox] then
                 lastState[skybox] = settings.Enabled
@@ -1390,16 +1277,15 @@ task.spawn(function()
     end
 end)
 
--- GUI - Przycisk do zmiany skyboxa
 for skybox, settings in pairs(getgenv().SkyboxSettings) do
     SkyboxesSection:AddToggle(skybox, settings.Enabled, function(value)
-        settings.Enabled = value -- Poprawiona nazwa zmiennej
-        changeSkybox() -- Natychmiastowa aktualizacja skyboxa po zmianie
+        settings.Enabled = value
+        changeSkybox()
     end)
 end
 
 getgenv().Zoom = {
-    Enabled = false -- Set this to true or false to enable/disable the zoom
+    Enabled = false
 }
 
 local UserInputService = game:GetService("UserInputService")
@@ -1408,9 +1294,8 @@ local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 local defaultMaxZoom = 100
-local currentMaxZoom = defaultMaxZoom  -- Store the initial max zoom
+local currentMaxZoom = defaultMaxZoom
 
--- Initially set the camera's max zoom distance to the default value
 player.CameraMaxZoomDistance = defaultMaxZoom
 
 local isEnabled = getgenv().Zoom.Enabled
@@ -1430,29 +1315,21 @@ local function onMouseWheel(input, gameProcessed)
     end
 end
 
--- Function to toggle the zoom functionality on or off
 local function toggleZoom(state)
     getgenv().Zoom.Enabled = state
     isEnabled = state
 
     if not isEnabled then
-        -- When disabled, set CameraMaxZoomDistance back to the default value
         player.CameraMaxZoomDistance = defaultMaxZoom
     end
 end
 
 UserInputService.InputChanged:Connect(onMouseWheel)
 
--- Example usage: toggle zoom on or off
--- toggleZoom(true) -- Enable
--- toggleZoom(false) -- Disable and reset to default zoom
-
--- Update the toggle in the GUI and ensure it's reflected properly
 PlayerSection:AddToggle("Infinite Zoom", getgenv().Zoom.Enabled, function(value)
-    toggleZoom(value) -- Call toggleZoom function to change the zoom state
+    toggleZoom(value)
 end)
 
--- GUI ustawienia aimbota
 AimbotSection:AddToggle("Enable Camlock", getgenv().Aimbot.Enabled, function(value)
     getgenv().Aimbot.Enabled = value
 end)
@@ -1478,10 +1355,9 @@ AimbotSection:AddSlider("Max Distance", 50, 10000, getgenv().Aimbot.MaxDistance,
 end)
 
 AimbotSection:AddTextbox("MouseTp", tostring(getgenv().Aimbot.FallOffset), function(value)
-    getgenv().Aimbot.FallOffset = tonumber(value) or 0  -- Default to 0 if input is invalid
+    getgenv().Aimbot.FallOffset = tonumber(value) or 0
 end)
 
--- GUI ustawienia Silent Aim
 SilentAimSection:AddToggle("Enable Silent aim", getgenv().Yuth.Silent.Enabled, function(value)
     getgenv().Yuth.Silent.Enabled = value
     if not value then
@@ -1573,7 +1449,6 @@ AntilockSection:AddSlider("Spinbot speed", 0, 0, getgenv().Settings.DesyncAngles
     getgenv().Settings.DesyncAngles = value
 end)
 
--- Obsługa włączania/wyłączania Silent Aim przyciskiem
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode[getgenv().Yuth.Silent.Keybind] then
@@ -1599,11 +1474,10 @@ FlightSection:AddTextbox("Flight Keybind", getgenv().Flight.Keybind, function(va
     getgenv().Flight.Keybind = value
 end)
 
--- Ustawienie globalnej zmiennej cframe
 getgenv().cframe = {
-    Enabled = false,  -- Domyślnie wyłączona
-    Speed = 1000,  -- Domyślna prędkość
-    Keybind = "V"  -- Domyślny klawisz przełączania
+    Enabled = false,
+    Speed = 1000,
+    Keybind = "V"
 }
 
 local runServiceConnection
@@ -1613,9 +1487,8 @@ local function setupCharacter(character)
     local hrp = character:WaitForChild("HumanoidRootPart")
 
     local function onUpdate(deltaTime)
-        if not getgenv().cframe.Enabled then return end  -- Jeśli prędkość jest wyłączona, nic nie rób
+        if not getgenv().cframe.Enabled then return end
 
-        -- Jeśli prędkość jest ustawiona, zmieniamy CFrame na nową pozycję
         local direction = humanoid.MoveDirection
         if direction.magnitude > 0 then
             local newCFrame = hrp.CFrame + direction * getgenv().cframe.Speed * deltaTime
@@ -1623,12 +1496,10 @@ local function setupCharacter(character)
         end
     end
 
-    -- Odłącz poprzednie połączenie, jeśli istnieje
     if runServiceConnection then
         runServiceConnection:Disconnect()
     end
 
-    -- Podłącz funkcję do zdarzenia Heartbeat
     runServiceConnection = RunService.Heartbeat:Connect(onUpdate)
 end
 
@@ -1638,12 +1509,10 @@ if LocalPlayer.Character then
     setupCharacter(LocalPlayer.Character)
 end
 
--- Funkcja do obsługi przełączania klawisza
 local function onToggleKeyPressed(input)
     if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode[getgenv().cframe.Keybind] then
-        getgenv().cframe.Enabled = not getgenv().cframe.Enabled  -- Przełącz flagę
+        getgenv().cframe.Enabled = not getgenv().cframe.Enabled
         if not getgenv().cframe.Enabled then
-            -- Resetujemy CFrame do aktualnej pozycji
             local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = hrp.CFrame
@@ -1652,10 +1521,8 @@ local function onToggleKeyPressed(input)
     end
 end
 
--- Ustawienie prędkości chodu na odpowiednią wartość
 UserInputService.InputBegan:Connect(onToggleKeyPressed)
 
--- Dodanie suwaczka w GUI do sekcji CFrame
 CFrameSection:AddToggle("Enable CFrame", getgenv().cframe.Enabled, function(value)
     getgenv().cframe.Enabled = value
     if not value and runServiceConnection then
@@ -1684,7 +1551,7 @@ getgenv().Visuals = {
     TrailLifetime = 1.5,
     TrailWidth = 0.6,
     TrailInstance = nil,
-    OriginalColors = {} -- Przechowywanie oryginalnych kolorów części postaci
+    OriginalColors = {}
 }
 
 local function updateForceField()
@@ -1695,7 +1562,6 @@ local function updateForceField()
                 
                 if part and part:IsA("BasePart") then
                     if getgenv().Visuals.ForceFieldEnabled then
-                        -- Zapisz oryginalny kolor przed zmianą
                         if not getgenv().Visuals.OriginalColors[part] then
                             getgenv().Visuals.OriginalColors[part] = part.Color
                         end
@@ -1703,7 +1569,6 @@ local function updateForceField()
                         part.Color = getgenv().Visuals.ForceFieldColor
                     else
                         part.Material = Enum.Material.Plastic
-                        -- Przywróć oryginalny kolor
                         if getgenv().Visuals.OriginalColors[part] then
                             part.Color = getgenv().Visuals.OriginalColors[part]
                         end
@@ -1720,7 +1585,6 @@ local function updateForceFieldGun()
             local handle = tool:FindFirstChild("Handle")
             if handle and handle:IsA("BasePart") then
                 if getgenv().Visuals.ForceFieldGunEnabled then
-                    -- Zapisz oryginalny kolor przed zmianą
                     if not getgenv().Visuals.OriginalColors[handle] then
                         getgenv().Visuals.OriginalColors[handle] = handle.Color
                     end
@@ -1728,7 +1592,6 @@ local function updateForceFieldGun()
                     handle.Color = getgenv().Visuals.ForceFieldGunColor
                 else
                     handle.Material = Enum.Material.Plastic
-                    -- Przywróć oryginalny kolor
                     if getgenv().Visuals.OriginalColors[handle] then
                         handle.Color = getgenv().Visuals.OriginalColors[handle]
                     end
@@ -1777,7 +1640,7 @@ end
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.5)
     if getgenv().Visuals.TrailEnabled then
-        createTrail() -- Tworzenie nowego traila po respawnie
+        createTrail()
     end
     updateForceField()
 end)
@@ -1812,9 +1675,7 @@ TrailSection:AddColorpicker("Trail Color", getgenv().Visuals.TrailColor, functio
     getgenv().Visuals.TrailColor = color
 end)
 
--- Define available hit sounds
 local sfx = {
-    ["Bameware"] = "16910460773",
     ["Skeet"] = "4753603610",
     ["Bonk"] = "3765689841",
     ["Lazer Beam"] = "130791043",
@@ -1834,24 +1695,20 @@ local sfx = {
     ["Mario"] = "5709456554",
 }
 
--- Convert sound names to dropdown options
 local sfx_names = {}
 for name, _ in pairs(sfx) do
     table.insert(sfx_names, name)
 end
 
--- Store default hit sound before modifying
 local hitSound = game.ReplicatedStorage:FindFirstChild("HitSound")
 local defaultSoundId = hitSound and hitSound:IsA("Sound") and hitSound.SoundId or ""
 
--- Global settings
 getgenv().Yuth.HitSounds = {
     Enabled = false,
     SelectedSound = "Skeet",
-    Volume = "3" -- Default volume (string for text input)
+    Volume = "3"
 }
 
--- Add Hit Sound settings to the Silent Aim section
 SilentAimSection:AddToggle("Hit Sounds", getgenv().Yuth.HitSounds.Enabled, function(value)
     getgenv().Yuth.HitSounds.Enabled = value
     updateHitSound()
@@ -1863,24 +1720,21 @@ SilentAimSection:AddDropdown("Select Hit Sound", sfx_names, getgenv().Yuth.HitSo
 end)
 
 SilentAimSection:AddTextbox("Hit Sound Volume", getgenv().Yuth.HitSounds.Volume, function(value)
-    local num = tonumber(value) -- Convert input to number
+    local num = tonumber(value)
     if num then
         getgenv().Yuth.HitSounds.Volume = num
         updateHitSound()
     end
 end)
 
--- Function to update hit sound settings
 function updateHitSound()
     local hitSound = game.ReplicatedStorage:FindFirstChild("HitSound")
     if hitSound and hitSound:IsA("Sound") then
         if getgenv().Yuth.HitSounds.Enabled then
-            -- Apply selected sound
             hitSound.SoundId = "rbxassetid://" .. sfx[getgenv().Yuth.HitSounds.SelectedSound]
             hitSound.Volume = getgenv().Yuth.HitSounds.Volume
             print("[Hit Sounds] Set to:", getgenv().Yuth.HitSounds.SelectedSound, "Volume:", getgenv().Yuth.HitSounds.Volume)
         else
-            -- Reset to default sound
             hitSound.SoundId = defaultSoundId
             hitSound.Volume = 1
             print("[Hit Sounds] Disabled - Reset to default sound.")
@@ -1899,38 +1753,32 @@ local Mouse = LocalPlayer:GetMouse()
 local SilentAimTarget = nil
 local HighlightObject = nil
 
--- Globalna zmienna do zarządzania BunnyHop
 getgenv().BunnyHop = {
     Enabled = false,
-    Power = 50,  -- Domyślna moc skoku
-    SpeedBoost = 1.5  -- Mnożnik prędkości ruchu podczas skoku
+    Power = 50,
+    SpeedBoost = 1.5
 }
 
--- Funkcja obsługująca BunnyHop
 local function ToggleBunnyHop(state)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
 
     if state then
-        -- Aktywacja BunnyHop
         getgenv().BunnyHop.Connection = game:GetService("RunService").RenderStepped:Connect(function()
             if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
                 local humanoid = character.Humanoid
                 local rootPart = character.HumanoidRootPart
                 
                 if humanoid.FloorMaterial == Enum.Material.Air then
-                    -- Przyspieszenie ruchu w powietrzu
                     local moveDirection = humanoid.MoveDirection
                     rootPart.Velocity = Vector3.new(moveDirection.X * getgenv().BunnyHop.SpeedBoost * 30, rootPart.Velocity.Y, moveDirection.Z * getgenv().BunnyHop.SpeedBoost * 30)
                 else
-                    -- Wykonanie skoku
                     humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                     humanoid.JumpPower = getgenv().BunnyHop.Power
                 end
             end
         end)
     else
-        -- Dezaktywacja BunnyHop
         if getgenv().BunnyHop.Connection then
             getgenv().BunnyHop.Connection:Disconnect()
             getgenv().BunnyHop.Connection = nil
@@ -1938,22 +1786,19 @@ local function ToggleBunnyHop(state)
     end
 end
 
--- Dodaje opcję Toggle do sektora BunnyHop
 BunnyHopSection:AddToggle("Enable BunnyHop", getgenv().BunnyHop.Enabled, function(value)
     getgenv().BunnyHop.Enabled = value
     ToggleBunnyHop(value)
 end)
 
--- Dodaje Slider do regulacji mocy skoku
 BunnyHopSection:AddSlider("BunnyHop Power", 10, 100, getgenv().BunnyHop.Power, 5, function(value)
     getgenv().BunnyHop.Power = value
 end)
 
--- Dodaje Textbox do wpisania mnożnika prędkości w powietrzu
 BunnyHopSection:AddTextbox("BunnyHop Speed Boost", getgenv().BunnyHop.SpeedBoost, function(value)
     local newSpeedBoost = tonumber(value)
     if newSpeedBoost then
-        getgenv().BunnyHop.SpeedBoost = math.clamp(newSpeedBoost, 1, 5) -- Ograniczenie wartości (1-3)
+        getgenv().BunnyHop.SpeedBoost = math.clamp(newSpeedBoost, 1, 5)
     end
 end)
 
@@ -1974,7 +1819,7 @@ local function continuouslyActivateHeldItem()
                 gunTool:Activate()
             end
         end
-        task.wait(0.01) -- Mniejsze obciążenie niż `wait(0.0001)`
+        task.wait(0.01)
     end
 end
 
@@ -2011,7 +1856,6 @@ getgenv().PantsChanger = getgenv().PantsChanger or {Enabled = false, AssetId = "
 
 local player = game.Players.LocalPlayer
 
--- Function to toggle head transparency (Headless)
 local function toggleHeadless(state)
     local character = player.Character
     if character then
@@ -2027,7 +1871,6 @@ local function toggleHeadless(state)
     end
 end
 
--- Function to apply or remove Korblox leg
 local function toggleKorblox(state)
     local character = player.Character
     if character then
@@ -2047,7 +1890,6 @@ local function toggleKorblox(state)
                     getgenv().KorbloxData.OriginalTextures["RightUpperLeg"] = rightUpperLeg.TextureID
                 end
 
-                -- Apply Korblox leg
                 rightFoot.MeshId = "http://www.roblox.com/asset/?id=902942089"
                 rightFoot.Transparency = 1
                 rightLowerLeg.MeshId = "http://www.roblox.com/asset/?id=902942093"
@@ -2055,7 +1897,6 @@ local function toggleKorblox(state)
                 rightUpperLeg.MeshId = "http://www.roblox.com/asset/?id=902942096"
                 rightUpperLeg.TextureID = "http://roblox.com/asset/?id=902843398"
             else
-                -- Restore original leg
                 if getgenv().KorbloxData.OriginalMeshes["RightFoot"] then
                     rightFoot.MeshId = getgenv().KorbloxData.OriginalMeshes["RightFoot"]
                     rightFoot.TextureID = getgenv().KorbloxData.OriginalTextures["RightFoot"]
@@ -2071,7 +1912,6 @@ local function toggleKorblox(state)
     end
 end
 
--- Function to apply the shirt to the character
 local function applyShirtToCharacter(character)
     local shirt = character:FindFirstChildOfClass("Shirt")
     if getgenv().ShirtChanger.Enabled then
@@ -2092,7 +1932,6 @@ local function applyShirtToCharacter(character)
     end
 end
 
--- Function to apply pants to the character
 local function applyPantsToCharacter(character)
     local pants = character:FindFirstChildOfClass("Pants")
     if getgenv().PantsChanger.Enabled then
@@ -2113,30 +1952,24 @@ local function applyPantsToCharacter(character)
     end
 end
 
--- Listen for character respawn
 player.CharacterAdded:Connect(function(character)
     character:WaitForChild("Head", math.huge)
-    toggleHeadless(getgenv().Headless) -- Apply headless state on respawn
-    toggleKorblox(getgenv().Korblox) -- Apply Korblox if enabled
-    applyShirtToCharacter(character) -- Apply shirt on respawn
-    applyPantsToCharacter(character) -- Apply pants on respawn
+    toggleHeadless(getgenv().Headless)
+    toggleKorblox(getgenv().Korblox)
+    applyShirtToCharacter(character)
+    applyPantsToCharacter(character)
 end)
 
--- GUI Integration
-
--- Headless toggle
 AvatarSection:AddToggle("Headless Head", getgenv().Headless, function(value)
     getgenv().Headless = value
     toggleHeadless(value)
 end)
 
--- Korblox toggle (Moved directly under Headless)
 AvatarSection:AddToggle("Korblox", getgenv().Korblox, function(value)
     getgenv().Korblox = value
     toggleKorblox(value)
 end)
 
--- Shirt changer
 AvatarSection:AddToggle("Shirt Changer", getgenv().ShirtChanger.Enabled, function(value)
     getgenv().ShirtChanger.Enabled = value
     if player.Character then applyShirtToCharacter(player.Character) end
@@ -2147,7 +1980,6 @@ AvatarSection:AddTextbox("Shirt Asset ID", getgenv().ShirtChanger.AssetId, funct
     if getgenv().ShirtChanger.Enabled and player.Character then applyShirtToCharacter(player.Character) end
 end)
 
--- Pants changer
 AvatarSection:AddToggle("Pants Changer", getgenv().PantsChanger.Enabled, function(value)
     getgenv().PantsChanger.Enabled = value
     if player.Character then applyPantsToCharacter(player.Character) end
@@ -2212,7 +2044,6 @@ CrosshairSection:AddDropdown("Position", {"Mouse", "Center"}, getgenv().Crosshai
     getgenv().Crosshair.Position = value
 end)
 
--- Logika rysowania celownika
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Camera = game.Workspace.CurrentCamera
@@ -2221,7 +2052,6 @@ local Crosshair = {}
 Crosshair.Lines = {}
 Crosshair.Angle = 0
 
--- Funkcja tworząca linię
 local function CreateLine()
     local Line = Drawing.new("Line")
     Line.Thickness = getgenv().Crosshair.Thickness
@@ -2230,12 +2060,10 @@ local function CreateLine()
     return Line
 end
 
--- Tworzenie 4 linii celownika
 for i = 1, 4 do
     Crosshair.Lines[i] = CreateLine()
 end
 
--- Tworzenie napisu pod celownikiem
 local TextLabel = Drawing.new("Text")
 TextLabel.Size = 20
 TextLabel.Visible = getgenv().Crosshair.ShowText
@@ -2243,7 +2071,6 @@ TextLabel.Text = "swindle.cc"
 TextLabel.Outline = true
 TextLabel.Color = getgenv().Crosshair.TextColor
 
--- Aktualizacja celownika
 RunService.RenderStepped:Connect(function()
     if not getgenv().Crosshair.Enabled then
         for _, line in pairs(Crosshair.Lines) do
@@ -2293,7 +2120,6 @@ RunService.RenderStepped:Connect(function()
         Line.Visible = true
     end
 
-    -- Ustawienie tekstu pod celownikiem
     if getgenv().Crosshair.ShowText then
         TextLabel.Position = Vector2.new(Center.X - (TextLabel.TextBounds.X / 2), Center.Y + Gap + Length + 10)
         TextLabel.Color = getgenv().Crosshair.TextColor
@@ -2303,7 +2129,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 🔹 Funkcja do tworzenia podświetlenia
 local function CreateHighlight(target)
     if getgenv().Yuth.Highlight.Enabled and target and target.Character then
         if HighlightObject then HighlightObject:Destroy() end
@@ -2320,7 +2145,6 @@ local function CreateHighlight(target)
     end
 end
 
--- 🔹 Funkcja do usuwania podświetlenia
 local function RemoveHighlight()
     if HighlightObject then
         HighlightObject:Destroy()
@@ -2342,7 +2166,6 @@ getgenv().ChinaHat = {
     Color = Color3.fromRGB(255, 255, 255)
 }
 
--- Clone Chams Logic
 spawn(function()
     while true do
         if getgenv().CloneChams.Enabled then
@@ -2350,7 +2173,7 @@ spawn(function()
             if player.Character then
                 player.Character.Archivable = true
                 local Clone = player.Character:Clone()
-                Clone.Name = "CloneChams" -- Remove username visibility
+                Clone.Name = "CloneChams"
                 
                 for _, Obj in pairs(Clone:GetDescendants()) do
                     if Obj:IsA("BasePart") or Obj:IsA("MeshPart") or Obj:IsA("Part") then
@@ -2374,7 +2197,6 @@ spawn(function()
     end
 end)
 
--- China Hat Logic
 local RunService = game:GetService("RunService")
 local tau = math.pi * 2
 local drawings = {}
@@ -2428,7 +2250,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- GUI Integration
 TrailSection:AddToggle("Clone Chams", getgenv().CloneChams.Enabled, function(value)
     getgenv().CloneChams.Enabled = value
 end)
@@ -2471,11 +2292,11 @@ TrailSection:AddTextbox("China Hat Sides", tostring(getgenv().ChinaHat.Sides), f
 end)
 
 getgenv().ForceHit = {
-    Enabled = false,       -- Włącz/Wyłącz
-    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
-    Tracer = false,        -- Włącz/Wyłącz Tracer
-    Notifications = false, -- Włącz/Wyłącz Powiadomienia
-    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
+    Enabled = false,
+    Highlight = false,
+    Tracer = false,
+    Notifications = false,
+    Keybind = "C"
 }
 
 local LocalPlayer = Players.LocalPlayer
@@ -2489,11 +2310,11 @@ Highlight.FillColor = Color3.fromRGB(255, 255, 255)
 Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 
 getgenv().ForceHit = {
-    Enabled = false,       -- Włącz/Wyłącz
-    Highlight = false,     -- Włącz/Wyłącz Podświetlenie
-    Tracer = false,        -- Włącz/Wyłącz Tracer
-    Notifications = false, -- Włącz/Wyłącz Powiadomienia
-    Keybind = "C"         -- Domyślny klawisz (można zmienić w ustawieniach)
+    Enabled = false,
+    Highlight = false,
+    Tracer = false,
+    Notifications = false,
+    Keybind = "C"
 }
 
 local LocalPlayer = Players.LocalPlayer
@@ -2506,14 +2327,12 @@ Highlight.Enabled = false
 Highlight.FillColor = Color3.fromRGB(255, 255, 255)
 Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 
--- 📌 Ustawienia Tracera
 Tracer.Thickness = 2
 Tracer.Color = Color3.fromRGB(255, 255, 255)
 Tracer.Transparency = 1
 Tracer.Visible = false
 
--- 📌 Powiadomienie Swindle.CC
-local isNotified = false -- Flaga kontrolująca, czy powiadomienie zostało wysłane
+local isNotified = false
 
 function SwindleNotification(targetName, status)
     if ForceHit.Notifications and not isNotified then
@@ -2527,7 +2346,6 @@ function SwindleNotification(targetName, status)
     end
 end
 
--- 📌 Znalezienie najbliższego gracza do celownika
 function GetClosestToMouse()
     local ClosestPlayer = nil
     local ClosestDistance = math.huge
@@ -2548,7 +2366,6 @@ function GetClosestToMouse()
     return ClosestPlayer
 end
 
--- 📌 Aktualizacja Tracera
 local function UpdateTracer()
     if ForceHit.Enabled and ForceHit.Tracer and Target and Target.Character and Target.Character:FindFirstChild("Head") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local HeadPos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Target.Character.Head.Position)
@@ -2567,7 +2384,6 @@ end
 
 RunService.RenderStepped:Connect(UpdateTracer)
 
--- 📌 Funkcja strzelania w HEAD
 local function ShootBullet()
     if not ForceHit.Enabled or not Target or not Target.Character then return end
     
@@ -2602,7 +2418,6 @@ local function ShootBullet()
     ReplicatedStorage.MainEvent:FireServer(unpack(args))
 end
 
--- 📌 Obsługa klawisza do wybierania celu (z keybindem)
 UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
     if gameProcessedEvent then return end
     if Input.KeyCode.Name == ForceHit.Keybind then
@@ -2638,7 +2453,6 @@ UserInputService.InputBegan:Connect(function(Input, gameProcessedEvent)
     end
 end)
 
--- 📌 Funkcja do obsługi resetu postaci
 local function OnCharacterAdded(character)
     character.ChildAdded:Connect(function(tool)
         if tool:IsA("Tool") then
@@ -2674,7 +2488,7 @@ ForceHitSection:AddToggle("Notifications", getgenv().ForceHit.Notifications, fun
 end)
 
 getgenv().AntiSit = {
-    Enabled = false -- Włącz/Wyłącz Anti-Sit
+    Enabled = false
 }
 
 local function AntiSit()
@@ -2694,7 +2508,6 @@ PlayerSection:AddToggle("Anti Sit", getgenv().AntiSit.Enabled, function(value)
     getgenv().AntiSit.Enabled = value
 end)
 
--- 🔹 Funkcja do obliczania prędkości (resolver)
 local LastPositions = {}
 
 local function CalculateVelocity(Character)
@@ -2718,7 +2531,6 @@ local function CalculateVelocity(Character)
     return DeltaPosition / DeltaTime
 end
 
--- 🔹 Funkcja do obliczania najbliższego celu
 local function GetClosestTarget()
     local Target, Closest = nil, math.huge
     for _, player in ipairs(Players:GetPlayers()) do
@@ -2738,7 +2550,6 @@ local function GetClosestTarget()
     return Target
 end
 
--- 🔹 Przełącznik Silent Aim
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode[getgenv().Yuth.Silent.Keybind] then
@@ -2754,7 +2565,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- 🔹 Aktualizacja celu Silent Aim i podświetlenia
 RunService.RenderStepped:Connect(function()
     if getgenv().Yuth.Silent.Enabled then
         if not SilentAimTarget or not SilentAimTarget.Character then
@@ -2767,7 +2577,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 🔹 Hookowanie __index
 local grmt = getrawmetatable(game)
 local backupindex = grmt.__index
 setreadonly(grmt, false)
